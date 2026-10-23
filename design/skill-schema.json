@@ -4,12 +4,21 @@
   "attributes": ["Str", "Con", "Ski", "Agi", "Int", "Wis", "Cha"],
 
   "difficulty_tiers": {
-    "$comment": "難度階 1–5。三個用途:升級成本倍率(乘 progression.md 的表)、每級副技能槽數(待定)、副技能等級天花板(副技能等級 ≤ 主技能難度階)。五以上尚未設計。",
-    "1": { "xp_multiplier": 1.00, "subskill_slots_per_level": null },
-    "2": { "xp_multiplier": 1.20, "subskill_slots_per_level": null },
-    "3": { "xp_multiplier": 1.35, "subskill_slots_per_level": null },
-    "4": { "xp_multiplier": 1.50, "subskill_slots_per_level": null },
-    "5": { "xp_multiplier": 1.75, "subskill_slots_per_level": null }
+    "$comment": "難度階 1–5 是「角色持有的這門技能」的屬性,不是技能本身的屬性。同一門長劍,散修手裡難度 1,師承弟子手裡難度 3。三個用途:升級成本倍率(乘 progression.md 的表)、每級副技能槽數(待定)、副技能天花板(副技能等級與自身難度皆 ≤ 持有難度階)。五以上尚未設計。",
+    "1": { "xp_multiplier": 1.00, "how": "散修。任何技能自學皆為難度 1" },
+    "2": { "xp_multiplier": 1.20, "how": "自悟。補足已投入經驗 × 0.2 的差額,閉關,突破判定一次(條件待確認)" },
+    "3": { "xp_multiplier": 1.35, "how": "待確認(我猜:師承)" },
+    "4": { "xp_multiplier": 1.50, "how": "待確認(我猜:宗門絕學)" },
+    "5": { "xp_multiplier": 1.75, "how": "待確認(我猜:傳說/奇遇)" }
+  },
+
+  "character_skill": {
+    "$comment": "角色卡上的技能條目。難度階住這裡。",
+    "skill":   "技能名",
+    "level":   "0–7",
+    "tier":    "1–5,持有難度階",
+    "xp_invested": "累計投入",
+    "subskills": [ { "name": "", "level": "≤ tier" } ]
   },
 
   "subskill_types": {
@@ -23,7 +32,7 @@
   },
 
   "subskill_rules": {
-    "level_cap":     "副技能等級 ≤ 主技能難度階;副技能自身難度 ≤ 主技能難度階。簡單主技能掛不了高階副技能——這就是預算。",
+    "level_cap":     "副技能等級與自身難度皆 ≤ 角色持有該主技能的難度階。散修(難度 1)只能掛難度 1 副技能、且只到 1 級——這就是預算。",
     "xp_cost":       "主技能同等級成本的 1/10,再乘副技能自身難度(待定)",
     "learning":      "簡單副技能可自學;困難副技能需 roleplay 條件",
     "activation":    "可選擇發動。主技能動作發動 n 個副技能,該動額外耗 n 點(加在價碼上,不進累進格的 k)",
@@ -36,7 +45,8 @@
     "aliases":         ["string"],
     "category":        "core | module:<name>",
     "attributes":      ["三個屬性代碼,順序不重要"],
-    "difficulty_tier": "1–5",
+    "max_tier":        "1–5,此技能可達的最高難度階(多數為 5;有些技能天生上不去)",
+    "tier_conditions": { "2": "預設:自悟", "3": "roleplay 條件", "4": "roleplay 條件", "5": "roleplay 條件" },
     "pool":            "體力 | 內力 | 內源魔力 | 神識 | none —— 該技能超量使用時燒哪個池",
     "xp_pool":         "combat | noncombat | either(either 少給)",
     "untrained":       "可試 | 減半 | 不可(不可清單極短:語言、讀寫類)",
@@ -68,7 +78,7 @@
     "aliases": ["劍法(長劍)"],
     "category": "core",
     "attributes": ["Str", "Ski", "Agi"],
-    "difficulty_tier": 3,
+    "max_tier": 5,
     "pool": "體力",
     "xp_pool": "combat",
     "untrained": "可試",
@@ -92,7 +102,7 @@
     "name": "招架",
     "category": "core",
     "attributes": ["Ski", "Str", "Wis"],
-    "difficulty_tier": 3,
+    "max_tier": 5,
     "pool": "體力",
     "xp_pool": "combat",
     "untrained": "可試",
