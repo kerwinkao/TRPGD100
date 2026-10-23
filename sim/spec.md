@@ -6,7 +6,7 @@
 resolution.md 改了防禦鏈結構與消耗模型,Session 1 的 `fight.py` 回合迴圈要重寫,`resolve.py` 大致可留:
 1. 招架、格擋不再侵蝕 T;改做**傷害對抗**(武器骰 / 盾值)。只有閃避侵蝕 T。
 2. 固定 `cost_layer` 作廢。改為**消耗格**:手/腳/腦三格,回合內同格第 k 動耗 k 點;技能等級給 `ceil(level/2)` 次低價(各 1 點)。回合末歸零。
-3. 新增步法(Step):幅度轉下一動技能值加值,吃腳格。
+3. 新增步法(Step):宣告目標動作(閃避/招架/格擋/攻擊),幅度轉該動作技能值加值,吃腳格。跨格輔助各算各格第一動。
 4. 盾值 = 1 或 2 + ⌊(Str−10)/2⌋。
 5. ambiguities A0–A13、A21、A22 已裁,見 open-questions 底部表。開關改成預設值,不必再掃。
 6. 攻方策略從「貪婪疊到付不起」改為「每動有價值門檻」:門檻 `act_threshold` 當參數掃。
@@ -21,7 +21,7 @@ check(skill, rng, crit_bonus=0) -> Result   # success, margin, crit, fumble
   crit  : success and roll ≤ ceil(skill × 0.10) + crit_bonus
   fumble: roll == 100 or (skill < 100 and roll > 100 − ceil((100 − skill) × 0.10))
 overflow(skill) -> int                 # max(skill − 100, 0)
-step(skill, rng) -> int                # 成功回傳幅度 S,失敗 0
+step(skill, rng) -> int                # 成功回傳幅度 S,失敗 0;呼叫端決定 S 加到哪個動作
 dodge(T, skill, level, rng) -> (T_left, full_dodge)   # 全閃用原始 m;否則 T −= min(m, 10×level)
 parry(skill, weapon_die, rng) -> D_def | None          # 成功回傳武器骰
 block(skill, shield_value, rng) -> D_def | None        # 技能 +10;成功回傳盾值
@@ -76,6 +76,7 @@ E1/E3/E7 用長劍 + 步法/閃避/招架/格擋,先攻固定輪流。
 - 純守:閃避、招架各半,長劍留底值
 - 均衡帶盾:長劍、閃避、招架、格擋平分,大盾
 - 步法賭徒:步法、閃避各半,長劍留底值——疊步法賭全閃
+- 步法戰士:步法、長劍、招架三分,不練閃避——步法輔助招架或攻擊,跨格便宜
 - 技術流:長劍中等,副技能三條(schema example)
 - 內力流:長劍中等 + 內功
 - 雙持:長劍 + 短劍 + 雙持一級
