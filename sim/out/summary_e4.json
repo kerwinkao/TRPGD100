@@ -1,0 +1,1271 @@
+{
+  "base_reward": {
+    "linear": 125.0,
+    "sqrt": 39.52847075210474,
+    "capped": 125.0
+  },
+  "encounters_per_session": 4,
+  "x0": 500,
+  "rows": [
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 1,
+      "sessions": 2
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 2,
+      "sessions": 3
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 3,
+      "sessions": 4
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 4,
+      "sessions": 6
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 5,
+      "sessions": 8
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 6,
+      "sessions": 10
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 7,
+      "sessions": 12
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 8,
+      "sessions": 15
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 9,
+      "sessions": 17
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 10,
+      "sessions": 20
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 1,
+      "sessions": 2
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 2,
+      "sessions": 4
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 3,
+      "sessions": 10
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 4,
+      "sessions": 20
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 5,
+      "sessions": 38
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 6,
+      "sessions": 65
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 7,
+      "sessions": 107
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 8,
+      "sessions": 166
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 9,
+      "sessions": 248
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 10,
+      "sessions": 358
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 1,
+      "sessions": 2
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 2,
+      "sessions": 4
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 3,
+      "sessions": 5
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 4,
+      "sessions": 7
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 5,
+      "sessions": 9
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 6,
+      "sessions": 11
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 7,
+      "sessions": 13
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 8,
+      "sessions": 15
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 9,
+      "sessions": 18
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 10,
+      "sessions": 20
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 1,
+      "sessions": 2
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 2,
+      "sessions": 5
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 3,
+      "sessions": 11
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 4,
+      "sessions": 20
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 5,
+      "sessions": 33
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 6,
+      "sessions": 52
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 7,
+      "sessions": 76
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 8,
+      "sessions": 106
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 9,
+      "sessions": 145
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 10,
+      "sessions": 192
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 1,
+      "sessions": 2
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 2,
+      "sessions": 3
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 3,
+      "sessions": 4
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 4,
+      "sessions": 6
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 5,
+      "sessions": 8
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 6,
+      "sessions": 10
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 7,
+      "sessions": 12
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 8,
+      "sessions": 15
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 9,
+      "sessions": 17
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 10,
+      "sessions": 20
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 1,
+      "sessions": 2
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 2,
+      "sessions": 4
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 3,
+      "sessions": 10
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 4,
+      "sessions": 20
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 5,
+      "sessions": 38
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 6,
+      "sessions": 65
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 7,
+      "sessions": 107
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 8,
+      "sessions": 166
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 9,
+      "sessions": 248
+    },
+    {
+      "scenario": "固定對手 C=100",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 10,
+      "sessions": 358
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 1,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 2,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 3,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 4,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 5,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 6,
+      "sessions": 3
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 7,
+      "sessions": 3
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 8,
+      "sessions": 4
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 9,
+      "sessions": 4
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 10,
+      "sessions": 4
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 1,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 2,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 3,
+      "sessions": 3
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 4,
+      "sessions": 4
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 5,
+      "sessions": 6
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 6,
+      "sessions": 9
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 7,
+      "sessions": 12
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 8,
+      "sessions": 15
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 9,
+      "sessions": 18
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 10,
+      "sessions": 22
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 1,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 2,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 3,
+      "sessions": 3
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 4,
+      "sessions": 4
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 5,
+      "sessions": 5
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 6,
+      "sessions": 6
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 7,
+      "sessions": 7
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 8,
+      "sessions": 8
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 9,
+      "sessions": 9
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 10,
+      "sessions": 9
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 1,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 2,
+      "sessions": 3
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 3,
+      "sessions": 6
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 4,
+      "sessions": 9
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 5,
+      "sessions": 14
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 6,
+      "sessions": 19
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 7,
+      "sessions": 26
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 8,
+      "sessions": 33
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 9,
+      "sessions": 41
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 10,
+      "sessions": 50
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 1,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 2,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 3,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 4,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 5,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 6,
+      "sessions": 3
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 7,
+      "sessions": 3
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 8,
+      "sessions": 4
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 9,
+      "sessions": 4
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 10,
+      "sessions": 4
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 1,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 2,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 3,
+      "sessions": 3
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 4,
+      "sessions": 4
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 5,
+      "sessions": 6
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 6,
+      "sessions": 9
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 7,
+      "sessions": 12
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 8,
+      "sessions": 15
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 9,
+      "sessions": 18
+    },
+    {
+      "scenario": "梯子 ρ=0.5",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 10,
+      "sessions": 22
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 1,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 2,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 3,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 4,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 5,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 6,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 7,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 8,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 9,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "linear",
+      "level_cost": "flat 100/級",
+      "level": 10,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 1,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 2,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 3,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 4,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 5,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 6,
+      "sessions": 3
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 7,
+      "sessions": 4
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 8,
+      "sessions": 5
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 9,
+      "sessions": 6
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "linear",
+      "level_cost": "遞增 100×n/級",
+      "level": 10,
+      "sessions": 8
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 1,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 2,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 3,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 4,
+      "sessions": 3
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 5,
+      "sessions": 3
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 6,
+      "sessions": 4
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 7,
+      "sessions": 4
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 8,
+      "sessions": 5
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 9,
+      "sessions": 5
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "flat 100/級",
+      "level": 10,
+      "sessions": 6
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 1,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 2,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 3,
+      "sessions": 4
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 4,
+      "sessions": 6
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 5,
+      "sessions": 8
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 6,
+      "sessions": 11
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 7,
+      "sessions": 15
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 8,
+      "sessions": 19
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 9,
+      "sessions": 24
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "sqrt",
+      "level_cost": "遞增 100×n/級",
+      "level": 10,
+      "sessions": 29
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 1,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 2,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 3,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 4,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 5,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 6,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 7,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 8,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 9,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "capped",
+      "level_cost": "flat 100/級",
+      "level": 10,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 1,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 2,
+      "sessions": 1
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 3,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 4,
+      "sessions": 2
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 5,
+      "sessions": 3
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 6,
+      "sessions": 5
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 7,
+      "sessions": 6
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 8,
+      "sessions": 8
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 9,
+      "sessions": 9
+    },
+    {
+      "scenario": "梯子 ρ=1.5",
+      "xp_reward_f": "capped",
+      "level_cost": "遞增 100×n/級",
+      "level": 10,
+      "sessions": 11
+    }
+  ]
+}
