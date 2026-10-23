@@ -13,7 +13,8 @@
 
   "subskill_types": {
     "erosion":  "侵蝕強化:提高該技能在防禦鏈中的侵蝕上限或效率",
-    "reroll":   "重骰:只能消 00,不能消一般失敗(硬禁令)",
+    "reroll_fumble": "重骰(消 00):只能消特誤。普通副技能,可自學",
+    "reroll_any":    "重骰(任意):骰完嫌不好可重骰一次,取後者。難度三以上,靠 roleplay 獲得。例:【劍意】【刀意】各武器通用。平衡靠模擬",
     "crit":     "致命:每級致命區 +1,與技能值的 10% 獨立相加,不封頂",
     "surge":    "定向超量:針對特定情境/招式/池的超量增援,含換池(目標為池時每級上限 10 點)",
     "action":   "新動作:解鎖該技能原本不能做的動作",
@@ -25,7 +26,8 @@
     "xp_cost":       "主技能同等級成本的 1/10,再乘副技能自身難度(待定)",
     "learning":      "簡單副技能可自學;困難副技能需 roleplay 條件",
     "activation":    "可選擇發動。主技能動作發動 n 個副技能,該動額外耗 n 點(加在價碼上,不進累進格的 k)",
-    "budget_note":   "不另設總效果預算;level_cap 與 xp_cost 即預算。填表者發現某副技能在允許等級下仍明顯過強,寫進 ambiguities.md"
+    "budget_note":   "不另設總效果預算;level_cap 與 xp_cost 即預算。填表者發現某副技能在允許等級下仍明顯過強,寫進 ambiguities.md",
+    "economy_note":  "設計意圖:發動費固定 +1,效果隨等級長,副技能是最便宜的強度來源。前期一半起玩家自然往副技能倒。模擬要量這個轉折點"
   },
 
   "skill": {
@@ -41,7 +43,7 @@
     "subskills": [
       {
         "name":      "string",
-        "type":      "erosion | reroll | crit | surge | action | link",
+        "type":      "erosion | reroll_fumble | reroll_any | crit | surge | action | link",
         "effect":    "機械效果,數字化",
         "condition": "觸發條件;link 型填配合的技能名",
         "difficulty": "easy | average | hard | very_hard(副技能自身難度)",
