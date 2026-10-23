@@ -4,8 +4,8 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from resolve import (Layer, Params, UsageLog, check, crit_zone, damage, difficulty,
-                     erode, fumble_floor, overflow)
+from resolve import (Layer, Params, UsageLog, block, check, crit_zone, damage, damage_s1,
+                     difficulty, dodge, erode, fumble_floor, overflow, parry, shield_value, step)
 
 
 class Fixed:
@@ -78,11 +78,70 @@ def test_difficulty_example():
     assert difficulty(75, [Layer("陷阱知識", 62, 2)], Fixed(10)) == 55
 
 
+def test_damage_s1():
+    # Session 1 傷判(舊簽名改名 damage_s1;A8 已裁 flat,pct 預設改為明確指定)
+    pct = Params(overflow_damage="pct")
+    assert damage_s1(8, 10, 25, True, Fixed(), pct) == 10      # 溢出致命滿骰 8 × 1.25
+    assert damage_s1(8, 10, 0, True, Fixed(3), pct) == 3       # 無溢出致命不滿骰(A3)
+    assert damage_s1(8, 10, 25, False, Fixed(4), Params(overflow_damage="flat")) == 29
+    assert damage_s1(8, 0, 25, True, Fixed(), pct) == 0
+
+
+def test_step():
+    assert step(52, Fixed(17)) == 35        # 成功回傳幅度
+    assert step(52, Fixed(60)) == 0         # 失敗
+    assert step(52, Fixed(100)) == 0        # 00 特誤
+    assert step(125, Fixed(100)) == 0       # 溢出也一樣(A1)
+    assert step(125, Fixed(30)) == 95
+
+
+def test_dodge():
+    # 全閃用原始 m,不受等級上限(A4):等級 0 也能全閃
+    assert dodge(30, 52, 0, Fixed(10)) == (0, True)          # m=42 ≥ 30
+    # 否則 T −= min(m, 10 × level)
+    assert dodge(60, 52, 1, Fixed(12)) == (50, False)        # m=40 → 吃 10
+    assert dodge(60, 52, 5, Fixed(40)) == (48, False)        # m=12 < 上限 50 → 吃 12
+    assert dodge(60, 52, 0, Fixed(12)) == (60, False)        # 零級不侵蝕
+    assert dodge(60, 52, 3, Fixed(80)) == (60, False)        # 失敗
+    assert dodge(60, 52, 3, Fixed(100)) == (60, False)       # 特誤(A5):該層失效、T 不變
+    assert dodge(60, 150, 3, Fixed(100)) == (60, False)      # 溢出擲 00 仍特誤(A1)
+    assert dodge(60, 52, 3, Fixed(52)) == (60, False)        # m=0:成功但吃 0
+
+
+def test_parry_block():
+    assert parry(52, 8, Fixed(10, 5)) == 5                   # 成功 → 守方擲武器骰
+    assert parry(52, 8, Fixed(70)) is None                   # 失敗
+    assert parry(52, 8, Fixed(100)) is None                  # 特誤
+    # 格擋技能 +10:擲 60 對 52 失敗,對 52+10 成功
+    assert block(52, 4, Fixed(60)) == 4
+    assert block(52, 4, Fixed(63)) is None
+    assert block(52, 0, Fixed(10)) == 0                      # 盾值 0:成功但吸收 0(與失敗不同)
+
+
+def test_shield_value():
+    assert shield_value("small", 14) == 3 and shield_value("large", 14) == 4
+    assert shield_value("small", 10) == 1 and shield_value("large", 10) == 2
+    assert shield_value("small", 4) == 0                     # 下限 0(1 + ⌊−3⌋ = −2)
+    assert shield_value(None, 24) == 0
+
+
 def test_damage():
-    assert damage(8, 10, 25, True, Fixed()) == 10          # 溢出致命滿骰 8 × 1.25
-    assert damage(8, 10, 0, True, Fixed(3)) == 3           # 無溢出致命不滿骰(A3)
-    assert damage(8, 10, 25, False, Fixed(4), Params(overflow_damage="flat")) == 29
-    assert damage(8, 0, 25, True, Fixed()) == 0
+    assert damage(8, 0, False, 0, Fixed(5)) == 5
+    assert damage(8, 0, False, 3, Fixed(2)) == 0             # 吸收超過 → 下限 0
+    assert damage(8, 25, False, 3, Fixed(4)) == 26           # 4 + 25 − 3
+    assert damage(8, 25, True, 0, Fixed()) == 33             # 溢出致命滿骰(不擲骰)
+    assert damage(8, 0, True, 0, Fixed(3)) == 3              # 無溢出致命不滿骰(A3)
+    assert damage(8, 25, True, 10, Fixed()) == 23
+
+
+def test_usage_log_s2():
+    log = UsageLog()
+    step(52, Fixed(17), log=log)
+    dodge(30, 52, 1, Fixed(40), log=log)
+    parry(52, 8, Fixed(20, 3), log=log)
+    block(52, 3, Fixed(20), log=log)
+    assert [r["skill"] for r in log] == ["步法", "閃避", "招架", "格擋"]
+    assert log[1]["challenge_value"] == 30 and log[3]["skill_pct"] == 62
 
 
 def test_usage_log():

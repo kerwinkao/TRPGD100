@@ -1,6 +1,8 @@
 """解算器:一條數線上的判定、侵蝕鏈、難度、傷判。
 
 規則來源:design/resolution.md、sim/spec.md。
+Session 2:招架、格擋改傷害對抗(parry / block / damage 新簽名),只有閃避(dodge)侵蝕 T,
+步法(step)回傳幅度。Session 1 的侵蝕鏈(erode / Layer / damage_s1)保留給難度判定與舊測試。
 - 純函數:不讀寫全域狀態。隨機源 `rng` 由呼叫端注入(任何有 randint(a, b) 的物件,
   例如 random.Random(seed))。使用紀錄寫進呼叫端注入的 `log`。
 - 規則沒講清楚的地方一律做成 Params 的開關,預設值不是設計決定,
@@ -9,6 +11,7 @@
 from __future__ import annotations
 
 import csv
+import math
 from dataclasses import dataclass, field, replace
 from typing import Iterable, Optional, Protocol, Sequence
 
@@ -23,7 +26,15 @@ class RNG(Protocol):
 
 @dataclass(frozen=True)
 class Params:
-    # spec.md 列出的參數
+    # Session 2 spec.md 列出的參數
+    act_threshold: float = math.inf      # 一動最多願付幾點(∞ = 付得起就動);實驗自行指定
+    shield: Optional[str] = None         # 'small' | 'large' | None
+    dual_wield: str = "lv1"              # 雙持技能等級:'none'(0)| 'lv1'(1)| 'full'(抵銷完)
+    weight_k: Optional[float] = None     # 負重上限 Con × k;None = 不啟用
+    parry_pool: str = "skill"            # A23:招架吃哪個低價池:'skill' 招架自己 | 'weapon' 武器(攻守共用)
+    defense_combine: str = "sum"         # A24:招架與格擋同時成功:'sum' 相加 | 'max' 取大
+
+    # Session 1 spec.md 列出的參數
     cost_stack: int = 5                  # 疊一個技能扣池幾點
     cost_layer: int = 5                  # 一層防禦扣池幾點
     cost_interrupt: int = 5              # interrupt 扣神識幾點(本輪未用)
@@ -43,7 +54,7 @@ class Params:
     defense_fumble: str = "layer_fail"   # A5:防禦層擲 00:'layer_fail' 該層失效 | 'chain_break' 整鏈崩
     declare: str = "adaptive"            # A6:'adaptive' 看剩餘 T 逐層 | 'upfront' 先宣告整鏈並先付費
     free_first_layer: bool = False       # A7:第一層防禦是否免費(只有「疊」的層才付費)
-    overflow_damage: str = "pct"         # A8:'pct' 傷害 × (1 + 溢出/100) | 'flat' 傷害 + 溢出
+    overflow_damage: str = "flat"        # A8 已裁 'flat'(傷害 + 溢出點);'pct' 僅供 Session 1 舊測試
     stack_mode: str = "level"            # A10:'level' 疊 +10×被疊技能等級 | 'full' 疊 + 被疊技能值 | 'none'
     stack_cap: str = "none"              # E3 對策:'none' | 'by_level' 疊加總額 ≤ 10 × 主技能等級
     stack_cost_growth: str = "flat"      # E3 對策:'flat' | 'steep' 同一動作第 k 個疊加付 cost_stack × 3^(k−1)
@@ -231,13 +242,66 @@ def difficulty(D: int, aids: Sequence[Layer], rng: RNG, params: Params = DEFAULT
 # 傷判
 # ---------------------------------------------------------------------------
 
-def damage(weapon_die: int, T_left: int, overflow_pts: int, crit: bool, rng: RNG,
-           params: Params = DEFAULT) -> int:
-    """武器骰;溢出狀態下致命 → 滿骰;溢傷依 params.overflow_damage。
-    T_left 只決定是否進傷判(T > 0),不加傷害(規則未給,A9)。"""
+def damage_s1(weapon_die: int, T_left: int, overflow_pts: int, crit: bool, rng: RNG,
+              params: Params = DEFAULT) -> int:
+    """Session 1 版傷判(T_left > 0 才進傷判,無守方吸收)。保留給舊測試;Session 2 用 damage()。"""
     if T_left <= 0:
         return 0
     die = weapon_die if (crit and overflow_pts > 0) else rng.randint(1, weapon_die)
     if params.overflow_damage == "flat":
         return die + overflow_pts
     return (die * (100 + overflow_pts) + 50) // 100   # 四捨五入的整數 × (1 + o/100)
+
+
+# ---------------------------------------------------------------------------
+# Session 2:防禦鏈新結構(閃避侵蝕 T;招架、格擋做傷害對抗;步法轉加值)
+# ---------------------------------------------------------------------------
+
+def step(skill: int, rng: RNG, *, params: Params = DEFAULT, log: Optional[list] = None,
+         ctx: Optional[Ctx] = None) -> int:
+    """步法:成功回傳幅度 S(=技能值 − 擲值),失敗或特誤回傳 0。
+    S 加到哪個動作的技能值由呼叫端決定(不進侵蝕上限)。"""
+    res = check(skill, rng, params=params, log=log, ctx=replace(ctx or Ctx(), skill="步法"))
+    return res.margin if res.success else 0
+
+
+def dodge(T: int, skill: int, level: int, rng: RNG, *, params: Params = DEFAULT,
+          log: Optional[list] = None, ctx: Optional[Ctx] = None) -> tuple:
+    """閃避:回傳 (T_left, full_dodge)。
+    特誤、失敗 → T 不變;m ≥ T → 全閃(用原始 m,A4);否則 T −= min(m, 10 × level)。"""
+    c = replace(ctx or Ctx(), skill="閃避", challenge_value=T)
+    res = check(skill, rng, params=params, log=log, ctx=c)
+    if not res.success:
+        return T, False
+    m = res.margin
+    if m >= T:
+        return 0, True
+    return T - min(m, 10 * level), False
+
+
+def parry(skill: int, weapon_die: int, rng: RNG, *, params: Params = DEFAULT,
+          log: Optional[list] = None, ctx: Optional[Ctx] = None) -> Optional[int]:
+    """招架:成功 → 守方擲武器傷害骰,回傳 D_def;失敗或特誤 → None。不碰 T。"""
+    res = check(skill, rng, params=params, log=log, ctx=replace(ctx or Ctx(), skill="招架"))
+    return rng.randint(1, weapon_die) if res.success else None
+
+
+def block(skill: int, shield_value: int, rng: RNG, *, params: Params = DEFAULT,
+          log: Optional[list] = None, ctx: Optional[Ctx] = None) -> Optional[int]:
+    """格擋:技能 +10(裝備加成);成功 → D_def = 盾值(固定),失敗或特誤 → None。"""
+    res = check(skill + 10, rng, params=params, log=log, ctx=replace(ctx or Ctx(), skill="格擋"))
+    return shield_value if res.success else None
+
+
+def shield_value(kind: Optional[str], strength: int = 14) -> int:
+    """盾值:小盾 1、大盾 2,加 ⌊(Str−10)/2⌋,下限 0。無盾回傳 0。"""
+    if kind is None:
+        return 0
+    return max(0, {"small": 1, "large": 2}[kind] + (strength - 10) // 2)
+
+
+def damage(weapon_die: int, overflow_pts: int, crit: bool, D_def: int, rng: RNG) -> int:
+    """傷判:D_atk = 武器骰 + 溢傷(點);溢出狀態下致命 → 武器骰滿骰。
+    傷害 = max(0, D_atk − D_def)。T 不進傷判(A9)。"""
+    die = weapon_die if (crit and overflow_pts > 0) else rng.randint(1, weapon_die)
+    return max(0, die + overflow_pts - D_def)

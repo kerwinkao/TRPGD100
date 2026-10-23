@@ -1,4 +1,4 @@
-"""E1、E2、E3、E4、E7。用法:python3 sim/experiments.py [e1 e2 e3 e4 e7]
+"""【Session 1 實驗,用 fight_s1.py;Session 2 見 experiments_s2.py】E1、E2、E3、E4、E7。用法:python3 sim/experiments.py [e1 e2 e3 e4 e7]
 輸出到 sim/out/:每實驗 CSV + PNG,以及 summary_<exp>.json 供 REPORT 引用。
 """
 from __future__ import annotations
@@ -19,8 +19,14 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib import font_manager
 
-from fight import Build, attack, fight, new_state
-from resolve import Layer, Params, UsageLog, check, crit_zone, damage, erode, overflow
+from fight_s1 import Build, attack, fight, new_state
+from resolve import Layer, Params as _Params, UsageLog, check, crit_zone, damage_s1 as damage, erode, overflow
+
+
+def Params(**kw):
+    """Session 1 實驗:A8 當時未裁,預設 'pct';Session 2 起 resolve.Params 預設改為已裁的 'flat'。"""
+    kw.setdefault("overflow_damage", "pct")
+    return _Params(**kw)
 
 OUT = os.path.join(os.path.dirname(__file__), "out")
 os.makedirs(OUT, exist_ok=True)
