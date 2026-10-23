@@ -86,6 +86,7 @@
       "內源魔力": "Int+Int | Int+Wis",
       "神識":     "Wis+Wis | Wis+Cha"
     },
+    "hp": "Str+Con(標準)| Con+Con | Con+Wis(修行人);Str+Str 禁",
     "starter_package": "起手技能與等級(借款,前三場可挪)"
   },
 
