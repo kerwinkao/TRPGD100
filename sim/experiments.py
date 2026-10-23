@@ -370,6 +370,29 @@ def e3(n=4_000):
     write_json("summary_e3.json", summary)
 
 
+def e3b(n=4_000):
+    """E3 敏感度:防禦層免費(cost_layer 0)或體力回復,無疊加。看「全押攻」佔優是否來自池耗盡。"""
+    variants = [("基準 cost 5、不回復", dict()),
+                ("防禦層免費 cost 0", dict(cost_layer=0)),
+                ("體力每回合回 5", dict(regen_stamina=5)),
+                ("HP 60", dict(hp=60))]
+    rows = []
+    with ProcessPoolExecutor() as pool:
+        for N in (4, 8):
+            builds = [Build("全押攻", weapon_level=N),
+                      Build("均衡", weapon_level=N // 2, dodge=N // 4, parry=N // 4),
+                      Build("全押守", dodge=N // 2, parry=N // 2)]
+            for vname, kw in variants:
+                M, R, D = matrix(builds, Params(stack_mode="none", **kw), n, SEED + N, pool)
+                names = [b.name for b in builds]
+                for i in range(3):
+                    for j in range(i + 1, 3):
+                        rows.append({"total_levels": N, "variant": vname, "row": names[i],
+                                     "col": names[j], "row_win_rate": round(M[i][j], 4),
+                                     "draw_rate": round(D[i][j], 4), "mean_rounds": round(R[i][j], 1)})
+    write_csv("e3b_sensitivity.csv", rows)
+
+
 # ---------------------------------------------------------------------------
 # E4 進度曲線(確定性)
 # ---------------------------------------------------------------------------
