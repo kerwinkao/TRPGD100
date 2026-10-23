@@ -1,0 +1,72 @@
+# 模擬規格
+
+目的:讓數字替手感說話。所有待定參數進這裡當變數掃,圖出來 KK 挑。
+
+## resolve.py
+
+純函數,無隨機狀態外洩;隨機源可注入(測試用固定 seed)。
+
+```
+roll(rng) -> int                       # 1..100,00 記為 100
+check(skill, rng) -> Result            # success, margin, crit, fumble
+  crit  : roll ≤ ceil(min(skill,100) × 0.10)  (待與 KK 核對致命區算法)
+  fumble: roll == 100 or roll > 100 − ceil((100 − min(skill,100)) × 0.10)
+overflow(skill) -> int                 # max(skill − 100, 0)
+erode(T, layers, rng) -> (T_left, log) # 幅度侵蝕鏈,見 resolution.md
+difficulty(D, aids, rng) -> D_left     # 難度判定,同 erode
+damage(weapon, T_left, overflow, crit) -> int
+```
+
+每次 `check` 寫一行使用紀錄(格式見 resolution.md)。
+
+### 參數物件 `Params`
+```
+cost_stack        # 疊一個技能扣池幾點
+cost_layer        # 一層防禦扣池幾點
+cost_interrupt    # interrupt 扣神識幾點
+regen_*           # 各池回復
+xp_reward_f       # 'linear' | 'sqrt' | 'capped'
+free_xp_ratio     # 0.1 ~ 0.2
+tier_cost         # 難度階 → 每級經驗
+tier_slots        # 難度階 → 每級副技能槽
+convert_cap       # 換池每級上限(預設 10)
+```
+
+## 實驗
+
+### E1 代價尺度掃描
+- 同等級 52 vs 52,守方可選鏈長 1–3。
+- `cost_layer ∈ {3,5,8}`,體力池 28。
+- 輸出:淨命中率、平均每場鏈長、幾回合喘。
+- 目標:「三招喘」,非「一招喘」或「永遠不喘」。
+
+### E2 等經驗配置矩陣(核心題)
+- 固定總經驗(例 500 / 1500 / 5000)。
+- 配置原型:純攻疊加流、純守等級流、雙池通才(賢者)、單池專精、副技能技術流、內力流。
+- 每對一萬場,輸出勝率矩陣。
+- 找壟斷解:任一列全綠即為洞。
+
+### E3 攻守貨幣
+- 攻方疊 % 免費可得,守方侵蝕靠等級。驗證「全押攻不練守」是否為壟斷策略。
+- 若是,測兩種對策:疊加受等級上限;疊加代價陡升。
+
+### E4 進度曲線
+- 每場經驗固定模型,畫「到達 N 級需幾場」。
+- `xp_reward_f` 三型 × 難度階成本開關,四種組合各畫一條。
+- 看牆在哪裡;KK 決定牆要不要、在哪。
+
+### E5 可塑性
+- `free_xp_ratio ∈ {0.05, 0.1, 0.2, 0.3}`。
+- 角色從「劍客」轉「暗器」需幾場。
+
+### E6 屬性引用統計(技能表填完後)
+- 各屬性被引用次數、所掛技能的難度階分佈。
+- 低引用或只掛低階者 = 下一個儀容。
+
+### E7 溢出與致命
+- 技能 100 / 110 / 125 / 150,各一萬擲。
+- 致命率、平均溢傷、滿骰頻率。驗證「疊破百的獎勵主要是致命率」。
+
+## 輸出
+- 每實驗一個 CSV + 一張圖(matplotlib),放 `sim/out/`。
+- 一份 `sim/REPORT.md`:每實驗三句話——跑了什麼、看到什麼、建議改哪個參數。不下設計結論,結論 KK 下。

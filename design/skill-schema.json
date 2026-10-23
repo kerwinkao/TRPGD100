@@ -1,0 +1,98 @@
+{
+  "$comment": "技能資料庫 schema。雲端 session 只填欄位,不加機制、不自創數值、不抄既有系統敘述。附 example 一筆。",
+
+  "attributes": ["Str", "Con", "Ski", "Agi", "Int", "Wis", "Cha"],
+
+  "difficulty_tiers": {
+    "$comment": "對應 GURPS 易/普/難/極難。xp_cost 與 subskill_slots 為待定參數,模擬後填。",
+    "easy":      { "xp_cost_per_level": null, "subskill_slots_per_level": null },
+    "average":   { "xp_cost_per_level": null, "subskill_slots_per_level": null },
+    "hard":      { "xp_cost_per_level": null, "subskill_slots_per_level": null },
+    "very_hard": { "xp_cost_per_level": null, "subskill_slots_per_level": null }
+  },
+
+  "subskill_types": {
+    "erosion":  "侵蝕強化:提高該技能在防禦鏈中的侵蝕上限或效率",
+    "reroll":   "重骰:只能消 00,不能消一般失敗(硬禁令)",
+    "surge":    "定向超量:針對特定情境/招式/池的超量增援,含換池(目標為池時每級上限 10 點)",
+    "action":   "新動作:解鎖該技能原本不能做的動作"
+  },
+
+  "budget_rule": {
+    "$comment": "副技能總效果 ≤ f(難度階)。f 待定。目的:不讓滿街九陽神功。填表者發現效果超出預算時寫進 ambiguities.md,不自行調整。",
+    "f": null
+  },
+
+  "skill": {
+    "name":            "string,唯一",
+    "aliases":         ["string"],
+    "category":        "core | module:<name>",
+    "attributes":      ["三個屬性代碼,順序不重要"],
+    "difficulty_tier": "easy | average | hard | very_hard",
+    "pool":            "體力 | 內力 | 內源魔力 | 神識 | none —— 該技能超量使用時燒哪個池",
+    "xp_pool":         "combat | noncombat | either(either 少給)",
+    "untrained":       "可試 | 減半 | 不可(不可清單極短:語言、讀寫類)",
+    "description":     "兩三行。做什麼、典型用途。不抄既有系統文字。",
+    "subskills": [
+      {
+        "name":      "string",
+        "type":      "erosion | reroll | surge | action",
+        "effect":    "機械效果,數字化",
+        "condition": "觸發條件",
+        "unlock_level": "整數,主技能幾級解鎖"
+      }
+    ],
+    "canonical_stacks": [
+      {
+        "with":           "可疊的技能名",
+        "rationale":      "roleplay 理由範本",
+        "needs_dm_check": "bool,白名單內為 false"
+      }
+    ],
+    "defense_layer":   "null | dodge | parry | block | cover | armor —— 該技能可作為哪種防禦層",
+    "crit_flavor":     "一句致命敘事範例(給模型 DM 當語氣樣本)",
+    "fumble_flavor":   "一句特誤敘事範例"
+  },
+
+  "example": {
+    "name": "長劍",
+    "aliases": ["劍法(長劍)"],
+    "category": "core",
+    "attributes": ["Str", "Ski", "Agi"],
+    "difficulty_tier": "average",
+    "pool": "體力",
+    "xp_pool": "combat",
+    "untrained": "可試",
+    "description": "單手或雙手持用的直刃長劍。劈、刺、撩皆可;重攻擊時格擋能力下降。",
+    "subskills": [
+      { "name": "順勢格擋", "type": "erosion", "effect": "以長劍格擋時侵蝕上限 +5", "condition": "本回合已以長劍攻擊", "unlock_level": 2 },
+      { "name": "連刺", "type": "surge", "effect": "對同一目標連續攻擊時第二擊 +10", "condition": "首擊命中", "unlock_level": 3 },
+      { "name": "卸刃", "type": "action", "effect": "格擋成功且幅度 ≥ 20 時可改為繳械判定", "condition": "對手持兵器", "unlock_level": 4 }
+    ],
+    "canonical_stacks": [
+      { "with": "戰鬥反應", "rationale": "搶先出手的順勢一劍", "needs_dm_check": false },
+      { "with": "內功", "rationale": "以內力催動劍勢", "needs_dm_check": false }
+    ],
+    "defense_layer": "parry",
+    "crit_flavor": "劍尖自縫隙滑入,對方甚至來不及看清。",
+    "fumble_flavor": "劍刃在骨上卡住,整個人被拖了半步。"
+  },
+
+  "school": {
+    "$comment": "家。池公式掛在家上。",
+    "name": "string",
+    "pools": {
+      "內源魔力": "Int+Int | Int+Wis",
+      "神識":     "Wis+Wis | Wis+Cha"
+    },
+    "starter_package": "起手技能與等級(借款,前三場可挪)"
+  },
+
+  "pools": {
+    "$comment": "池的定義。tier 區分天生/練成。regen 待定。",
+    "體力":     { "tier": "innate",  "formula": "Con+Con",     "regen": null },
+    "內源魔力": { "tier": "innate",  "formula": "by school",   "regen": null },
+    "神識":     { "tier": "innate",  "formula": "by school",   "regen": null },
+    "內力":     { "tier": "trained", "base": "Con+Cha+Wis",    "regen": null }
+  }
+}
