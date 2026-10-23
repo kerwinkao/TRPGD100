@@ -6,10 +6,10 @@
   "difficulty_tiers": {
     "$comment": "難度階 1–5 是「角色持有的這門技能」的屬性,不是技能本身的屬性。同一門長劍,散修手裡難度 1,師承弟子手裡難度 3。三個用途:升級成本倍率(乘 progression.md 的表)、每級副技能槽數(待定)、副技能天花板(副技能等級與自身難度皆 ≤ 持有難度階)。五以上尚未設計。",
     "1": { "xp_multiplier": 1.00, "how": "散修。任何技能自學皆為難度 1" },
-    "2": { "xp_multiplier": 1.20, "how": "自悟。補足已投入經驗 × 0.2 的差額,閉關,突破判定一次(條件待確認)" },
-    "3": { "xp_multiplier": 1.35, "how": "待確認(我猜:師承)" },
-    "4": { "xp_multiplier": 1.50, "how": "待確認(我猜:宗門絕學)" },
-    "5": { "xp_multiplier": 1.75, "how": "待確認(我猜:傳說/奇遇)" }
+    "2": { "xp_multiplier": 1.20, "how": "鑽研:補差額,幅度累計 100" },
+    "3": { "xp_multiplier": 1.35, "how": "鑽研:補差額,幅度累計 200" },
+    "4": { "xp_multiplier": 1.50, "how": "鑽研:補差額,幅度累計 300(推測)" },
+    "5": { "xp_multiplier": 1.75, "how": "鑽研:補差額,幅度累計 400(推測)" }
   },
 
   "character_skill": {
@@ -46,7 +46,7 @@
     "category":        "core | module:<name>",
     "attributes":      ["三個屬性代碼,順序不重要"],
     "max_tier":        "1–5,此技能可達的最高難度階(多數為 5;有些技能天生上不去)",
-    "tier_conditions": { "2": "預設:自悟", "3": "roleplay 條件", "4": "roleplay 條件", "5": "roleplay 條件" },
+    "tier_conditions": "預設皆為鑽研;此欄填特例(某技能某階需 roleplay 條件,或可由師承減免)",
     "pool":            "體力 | 內力 | 內源魔力 | 神識 | none —— 該技能超量使用時燒哪個池",
     "xp_pool":         "combat | noncombat | either(either 少給)",
     "untrained":       "可試 | 減半 | 不可(不可清單極短:語言、讀寫類)",
