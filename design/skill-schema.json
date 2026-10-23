@@ -125,7 +125,7 @@
     "description": "以手中兵器接下攻擊。吸收量為該兵器的傷害骰;無副技能不反傷。",
     "subskills": [
       { "name": "長劍", "type": "link", "effect": "以長劍招架時 +10/級", "condition": "長劍", "difficulty": 1, "unlock_level": 1 },
-      { "name": "反震", "type": "action", "effect": "D_def > D_atk 時差值反傷對手", "condition": "招架成功", "difficulty": 3, "unlock_level": 3 }
+      { "name": "反擊", "type": "action", "effect": "D_def > D_atk 時,差值成為反擊傷害彈向攻方;攻方可付體力反應(走防禦鏈)", "condition": "招架成功", "difficulty": 1, "unlock_level": 1 }
     ],
     "canonical_stacks": [],
     "defense_layer": "parry",
