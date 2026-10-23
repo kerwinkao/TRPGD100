@@ -31,6 +31,16 @@
     "link":     "連動:主技能配合指定的另一技能使用時 +10/級。雙向可掛(招架掛【長劍】、長劍掛【招架】各自 +10)"
   },
 
+  "family_rules": {
+    "$comment": "技能鏈與副技能共用。這是傳承的機制。",
+    "chain":       "同 family 內技能成鏈:基礎劍法(難度 1)→ 華山劍法(難度 2)→ …。每門是獨立技能,各自練等級。",
+    "two_paths":   "升難度兩條路:散修鑽研把基礎劍法磨到難度 2;或宗門傳承直接學華山劍法(起始即難度 2,從 0 練)。後者不用鑽研但要從頭練等級。",
+    "share":       "副技能在 family 內共用:掛在基礎劍法上的副技能,華山劍法練到與基礎劍法同級即可用。所以傳承弟子通常不磨基礎的難度,改練華山到同級。",
+    "exclusive":   "每門高階技能有專屬副技能(華山劍法才有的東西)。這些由 roleplay 展開,表裡只留位置,不預填。",
+    "collect":     "為了副技能學多種劍法是合法策略;細節 roleplay。",
+    "table_policy": "核心表只列每個 family 的難度 1 入門技能。鏈上的高階技能不預填——模型 DM 跑團時依 roleplay 當場生一門、填進表、KK 審。樹在跑團中長出來。"
+  },
+
   "subskill_rules": {
     "level_cap":     "副技能等級與自身難度皆 ≤ 角色持有該主技能的難度階。散修(難度 1)只能掛難度 1 副技能、且只到 1 級——這就是預算。",
     "xp_cost":       "主技能同等級成本的 1/10,再乘副技能自身難度(待定)",
@@ -44,9 +54,11 @@
     "name":            "string,唯一",
     "aliases":         ["string"],
     "category":        "core | module:<name>",
+    "family":          "技能類,如 劍法 / 刀法 / 內功 / 步法。副技能在 family 內共用(見 family_rules)",
+    "lineage":         { "base_tier": "此門技能的起始難度階(散修入門技能為 1;宗門傳承技能可為 2+)", "prerequisite": "前一門技能名與所需等級,或 null" },
     "attributes":      ["三個屬性代碼,順序不重要"],
     "max_tier":        "1–5,此技能可達的最高難度階(多數為 5;有些技能天生上不去)",
-    "tier_conditions": "預設皆為鑽研;此欄填特例(某技能某階需 roleplay 條件,或可由師承減免)",
+    "tier_conditions": "預設皆為鑽研;此欄填特例(某技能某階需 roleplay 條件)",
     "pool":            "體力 | 內力 | 內源魔力 | 神識 | none —— 該技能超量使用時燒哪個池",
     "xp_pool":         "combat | noncombat | either(either 少給)",
     "untrained":       "可試 | 減半 | 不可(不可清單極短:語言、讀寫類)",
@@ -75,8 +87,10 @@
 
   "example": {
     "name": "長劍",
-    "aliases": ["劍法(長劍)"],
+    "aliases": ["劍法(長劍)", "基礎劍法"],
     "category": "core",
+    "family": "劍法",
+    "lineage": { "base_tier": 1, "prerequisite": null },
     "attributes": ["Str", "Ski", "Agi"],
     "max_tier": 5,
     "pool": "體力",
@@ -101,6 +115,8 @@
     "$comment": "招架是獨立技能,與長劍雙向連動。練它的理由:多一組低價次數,攻守各用各的。",
     "name": "招架",
     "category": "core",
+    "family": "招架",
+    "lineage": { "base_tier": 1, "prerequisite": null },
     "attributes": ["Ski", "Str", "Wis"],
     "max_tier": 5,
     "pool": "體力",
