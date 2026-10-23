@@ -4,11 +4,11 @@
   "attributes": ["Str", "Con", "Ski", "Agi", "Int", "Wis", "Cha"],
 
   "difficulty_tiers": {
-    "$comment": "對應 GURPS 易/普/難/極難。xp_cost 與 subskill_slots 為待定參數,模擬後填。",
-    "easy":      { "xp_cost_per_level": null, "subskill_slots_per_level": null },
-    "average":   { "xp_cost_per_level": null, "subskill_slots_per_level": null },
-    "hard":      { "xp_cost_per_level": null, "subskill_slots_per_level": null },
-    "very_hard": { "xp_cost_per_level": null, "subskill_slots_per_level": null }
+    "$comment": "難度階序號 1–4。三個用途:升級成本倍率(相對 progression.md 的普通表)、每級副技能槽數、副技能等級天花板(副技能等級 ≤ 主技能難度階序號)。倍率與槽數待定。",
+    "easy":      { "rank": 1, "xp_multiplier": null, "subskill_slots_per_level": null },
+    "average":   { "rank": 2, "xp_multiplier": 1.0,  "subskill_slots_per_level": null },
+    "hard":      { "rank": 3, "xp_multiplier": null, "subskill_slots_per_level": null },
+    "very_hard": { "rank": 4, "xp_multiplier": null, "subskill_slots_per_level": null }
   },
 
   "subskill_types": {
@@ -16,12 +16,16 @@
     "reroll":   "重骰:只能消 00,不能消一般失敗(硬禁令)",
     "crit":     "致命:每級致命區 +1,與技能值的 10% 獨立相加,不封頂",
     "surge":    "定向超量:針對特定情境/招式/池的超量增援,含換池(目標為池時每級上限 10 點)",
-    "action":   "新動作:解鎖該技能原本不能做的動作"
+    "action":   "新動作:解鎖該技能原本不能做的動作",
+    "link":     "連動:主技能配合指定的另一技能使用時 +10/級。雙向可掛(招架掛【長劍】、長劍掛【招架】各自 +10)"
   },
 
-  "budget_rule": {
-    "$comment": "副技能總效果 ≤ f(難度階)。f 待定。目的:不讓滿街九陽神功。填表者發現效果超出預算時寫進 ambiguities.md,不自行調整。",
-    "f": null
+  "subskill_rules": {
+    "level_cap":     "副技能等級 ≤ 主技能難度階 rank。簡單主技能掛不了高階副技能——這就是預算。",
+    "xp_cost":       "主技能同等級成本的 1/10,再乘副技能自身難度(待定)",
+    "learning":      "簡單副技能可自學;困難副技能需 roleplay 條件",
+    "activation":    "可選擇發動。主技能動作發動 n 個副技能,該動額外耗 n 點(加在價碼上,不進累進格的 k)",
+    "budget_note":   "不另設總效果預算;level_cap 與 xp_cost 即預算。填表者發現某副技能在允許等級下仍明顯過強,寫進 ambiguities.md"
   },
 
   "skill": {
@@ -37,9 +41,10 @@
     "subskills": [
       {
         "name":      "string",
-        "type":      "erosion | reroll | crit | surge | action",
+        "type":      "erosion | reroll | crit | surge | action | link",
         "effect":    "機械效果,數字化",
-        "condition": "觸發條件",
+        "condition": "觸發條件;link 型填配合的技能名",
+        "difficulty": "easy | average | hard | very_hard(副技能自身難度)",
         "unlock_level": "整數,主技能幾級解鎖"
       }
     ],
@@ -66,9 +71,9 @@
     "untrained": "可試",
     "description": "單手或雙手持用的直刃長劍。劈、刺、撩皆可;重攻擊時格擋能力下降。",
     "subskills": [
-      { "name": "順勢格擋", "type": "erosion", "effect": "以長劍格擋時侵蝕上限 +5", "condition": "本回合已以長劍攻擊", "unlock_level": 2 },
-      { "name": "連刺", "type": "surge", "effect": "對同一目標連續攻擊時第二擊 +10", "condition": "首擊命中", "unlock_level": 3 },
-      { "name": "卸刃", "type": "action", "effect": "格擋成功且幅度 ≥ 20 時可改為繳械判定", "condition": "對手持兵器", "unlock_level": 4 }
+      { "name": "招架", "type": "link", "effect": "以長劍招架時 +10/級", "condition": "招架", "difficulty": "easy", "unlock_level": 1 },
+      { "name": "連刺", "type": "surge", "effect": "同一手番內上一擊擲骰成功,本擊 +10", "condition": "同一目標", "difficulty": "average", "unlock_level": 3 },
+      { "name": "卸刃", "type": "action", "effect": "招架成功且 D_def ≥ D_atk + 4 時,對手主手武器落地", "condition": "對手持兵器", "difficulty": "hard", "unlock_level": 4 }
     ],
     "canonical_stacks": [
       { "with": "戰鬥反應", "rationale": "搶先出手的順勢一劍", "needs_dm_check": false },
@@ -77,6 +82,26 @@
     "defense_layer": "parry",
     "crit_flavor": "劍尖自縫隙滑入,對方甚至來不及看清。",
     "fumble_flavor": "劍刃在骨上卡住,整個人被拖了半步。"
+  },
+
+  "example_2": {
+    "$comment": "招架是獨立技能,與長劍雙向連動。練它的理由:多一組低價次數,攻守各用各的。",
+    "name": "招架",
+    "category": "core",
+    "attributes": ["Ski", "Str", "Wis"],
+    "difficulty_tier": "average",
+    "pool": "體力",
+    "xp_pool": "combat",
+    "untrained": "可試",
+    "description": "以手中兵器接下攻擊。吸收量為該兵器的傷害骰;無副技能不反傷。",
+    "subskills": [
+      { "name": "長劍", "type": "link", "effect": "以長劍招架時 +10/級", "condition": "長劍", "difficulty": "easy", "unlock_level": 1 },
+      { "name": "反震", "type": "action", "effect": "D_def > D_atk 時差值反傷對手", "condition": "招架成功", "difficulty": "hard", "unlock_level": 3 }
+    ],
+    "canonical_stacks": [],
+    "defense_layer": "parry",
+    "crit_flavor": "兵器相交,對方的劍勢被整個引偏。",
+    "fumble_flavor": "格開的角度錯了,劍鋒貼著手臂滑過。"
   },
 
   "school": {
