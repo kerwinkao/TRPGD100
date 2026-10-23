@@ -9,8 +9,8 @@
 ```
 roll(rng) -> int                       # 1..100,00 記為 100
 check(skill, rng) -> Result            # success, margin, crit, fumble
-  crit  : roll ≤ ceil(min(skill,100) × 0.10)  (待與 KK 核對致命區算法)
-  fumble: roll == 100 or roll > 100 − ceil((100 − min(skill,100)) × 0.10)
+  crit  : roll ≤ ceil(skill × 0.10) + crit_bonus   # 不封頂;crit_bonus 來自致命類副技能(每級 +1)
+  fumble: roll == 100 or (skill < 100 and roll > 100 − ceil((100 − skill) × 0.10))
 overflow(skill) -> int                 # max(skill − 100, 0)
 erode(T, layers, rng) -> (T_left, log) # 幅度侵蝕鏈,見 resolution.md
 difficulty(D, aids, rng) -> D_left     # 難度判定,同 erode
@@ -64,8 +64,9 @@ convert_cap       # 換池每級上限(預設 10)
 - 低引用或只掛低階者 = 下一個儀容。
 
 ### E7 溢出與致命
-- 技能 100 / 110 / 125 / 150,各一萬擲。
+- 技能 100 / 110 / 125 / 150 × crit_bonus 0 / 3 / 5,各一萬擲。
 - 致命率、平均溢傷、滿骰頻率。驗證「疊破百的獎勵主要是致命率」。
+- 高手對高手(150+5 vs 150+5):看是否退化成「誰先骰到 20 以下」。若是,這是設計意圖還是要煞車,KK 裁。
 
 ## 輸出
 - 每實驗一個 CSV + 一張圖(matplotlib),放 `sim/out/`。

@@ -14,6 +14,7 @@
   "subskill_types": {
     "erosion":  "侵蝕強化:提高該技能在防禦鏈中的侵蝕上限或效率",
     "reroll":   "重骰:只能消 00,不能消一般失敗(硬禁令)",
+    "crit":     "致命:每級致命區 +1,與技能值的 10% 獨立相加,不封頂",
     "surge":    "定向超量:針對特定情境/招式/池的超量增援,含換池(目標為池時每級上限 10 點)",
     "action":   "新動作:解鎖該技能原本不能做的動作"
   },
@@ -36,7 +37,7 @@
     "subskills": [
       {
         "name":      "string",
-        "type":      "erosion | reroll | surge | action",
+        "type":      "erosion | reroll | crit | surge | action",
         "effect":    "機械效果,數字化",
         "condition": "觸發條件",
         "unlock_level": "整數,主技能幾級解鎖"
