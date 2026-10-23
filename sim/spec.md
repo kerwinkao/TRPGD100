@@ -15,7 +15,10 @@ resolution.md 改了防禦鏈結構與消耗模型,Session 1 的 `fight.py` 回�
 1. 升級成本改累計表(progression.md),單技能上限 6 級。E2 經驗量 300/1000/2500,E3 總等級 3/6。
 2. 溢傷改回乘數(A8 重裁);傷害 = (骰 + 屬性補正) × (1 + 溢出/100)。
 3. 「高手」改成「5 級主技能 + 疊 5 級輔助」,疊加佔格付費;Session 2 的 A35(不疊加)作廢,疊加要進 fight.py。
-4. 招架歸屬(A23)、HP、體力回復、回合出手上限:見 open-questions,待裁;未裁前照 Session 2 預設並掃。
+4. 體力回復 = Con 效益值(⌊(Con−10)/2⌋),均值角色 2;`regen_stamina` 不再掃,改由 Con 算。
+5. 傷勢三位制:輕傷位 −D、重傷位 −⌊D/2⌋;輕傷位 0 失能(戰鬥結束),重傷位 0 死亡。勝負統計分「失能」與「擊殺」。上限仍佔位 30。
+6. 屬性效益值通則 ⌊(屬性−10)/2⌋ 下限 0,盾值、傷害補正、回復都用它。
+7. 招架歸屬(A23)、HP 上限公式、回合出手上限:待裁;未裁前照 Session 2 預設(招架獨立;出手上限 = 門檻 3)。
 
 ## resolve.py
 
@@ -47,8 +50,8 @@ cost(slot, skill) = 1 if cheap[skill] > 0 else slots[slot] + 1
 ### 參數物件 `Params`
 ```
 act_threshold     # 攻方/守方「一動最多願付幾點」,掃 {2,3,5,∞}
-regen_stamina     # 回合間體力回復(預設 0)
-hp                # 常數 30(待公式)
+regen_stamina     # 回合間體力回復 = Con 效益值(不再掃)
+hp                # 上限常數 30(待公式);傷勢三位 light/heavy/max
 shield            # 'small' | 'large' | None
 dual_wield        # 無技能 / 1 級 / 抵銷完
 weight_k          # 負重上限 Con × k(預設不啟用)
