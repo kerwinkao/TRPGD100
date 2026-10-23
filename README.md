@@ -10,7 +10,8 @@ design/resolution.md     判定、幅度侵蝕鏈、溢出、致命、使用紀�
 design/progression.md    兩池經驗、用則長、創角
 design/skill-schema.json 技能資料庫 schema + 範例
 design/open-questions.md 待定事項(設計/模擬/確認)
-sim/spec.md              resolve.py 規格與七個實驗
+sim/spec.md              resolve.py 規格與實驗
+play/README.md           模型 DM:引導創角、間隔期單人戲、NPC 模板
 ```
 
 ## 雲端 session 派工(建議順序)
