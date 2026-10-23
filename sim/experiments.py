@@ -136,7 +136,7 @@ def e1(n_attacks=100_000, n_fights=5_000):
         axes[0].plot(xs, ys, "o-", color=c, label=f"鏈長上限 {k}")
     axes[0].axhline(3, ls="--", color="gray", label="三招")
     axes[0].set_xlabel("cost_layer")
-    axes[0].set_ylabel("首次付不起一層前的防禦次數")
+    axes[0].set_ylabel("首次付不起的是第幾次防禦")
     axes[0].set_title("E1 幾招喘(adaptive,每層付費,體力 28)")
     axes[0].legend()
     for fd, ls in (("raw", "-"), ("capped", "--")):
