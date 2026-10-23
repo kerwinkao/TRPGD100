@@ -4,11 +4,12 @@
   "attributes": ["Str", "Con", "Ski", "Agi", "Int", "Wis", "Cha"],
 
   "difficulty_tiers": {
-    "$comment": "難度階序號 1–4。三個用途:升級成本倍率(相對 progression.md 的普通表)、每級副技能槽數、副技能等級天花板(副技能等級 ≤ 主技能難度階序號)。倍率與槽數待定。",
-    "easy":      { "rank": 1, "xp_multiplier": null, "subskill_slots_per_level": null },
-    "average":   { "rank": 2, "xp_multiplier": 1.0,  "subskill_slots_per_level": null },
-    "hard":      { "rank": 3, "xp_multiplier": null, "subskill_slots_per_level": null },
-    "very_hard": { "rank": 4, "xp_multiplier": null, "subskill_slots_per_level": null }
+    "$comment": "難度階 1–5。三個用途:升級成本倍率(乘 progression.md 的表)、每級副技能槽數(待定)、副技能等級天花板(副技能等級 ≤ 主技能難度階)。五以上尚未設計。",
+    "1": { "xp_multiplier": 1.00, "subskill_slots_per_level": null },
+    "2": { "xp_multiplier": 1.20, "subskill_slots_per_level": null },
+    "3": { "xp_multiplier": 1.35, "subskill_slots_per_level": null },
+    "4": { "xp_multiplier": 1.50, "subskill_slots_per_level": null },
+    "5": { "xp_multiplier": 1.75, "subskill_slots_per_level": null }
   },
 
   "subskill_types": {
@@ -22,7 +23,7 @@
   },
 
   "subskill_rules": {
-    "level_cap":     "副技能等級 ≤ 主技能難度階 rank。簡單主技能掛不了高階副技能——這就是預算。",
+    "level_cap":     "副技能等級 ≤ 主技能難度階;副技能自身難度 ≤ 主技能難度階。簡單主技能掛不了高階副技能——這就是預算。",
     "xp_cost":       "主技能同等級成本的 1/10,再乘副技能自身難度(待定)",
     "learning":      "簡單副技能可自學;困難副技能需 roleplay 條件",
     "activation":    "可選擇發動。主技能動作發動 n 個副技能,該動額外耗 n 點(加在價碼上,不進累進格的 k)",
@@ -35,7 +36,7 @@
     "aliases":         ["string"],
     "category":        "core | module:<name>",
     "attributes":      ["三個屬性代碼,順序不重要"],
-    "difficulty_tier": "easy | average | hard | very_hard",
+    "difficulty_tier": "1–5",
     "pool":            "體力 | 內力 | 內源魔力 | 神識 | none —— 該技能超量使用時燒哪個池",
     "xp_pool":         "combat | noncombat | either(either 少給)",
     "untrained":       "可試 | 減半 | 不可(不可清單極短:語言、讀寫類)",
@@ -46,7 +47,7 @@
         "type":      "erosion | reroll_fumble | reroll_any | crit | surge | action | link",
         "effect":    "機械效果,數字化",
         "condition": "觸發條件;link 型填配合的技能名",
-        "difficulty": "easy | average | hard | very_hard(副技能自身難度)",
+        "difficulty": "1–5(副技能自身難度)",
         "unlock_level": "整數,主技能幾級解鎖"
       }
     ],
@@ -67,15 +68,15 @@
     "aliases": ["劍法(長劍)"],
     "category": "core",
     "attributes": ["Str", "Ski", "Agi"],
-    "difficulty_tier": "average",
+    "difficulty_tier": 3,
     "pool": "體力",
     "xp_pool": "combat",
     "untrained": "可試",
     "description": "單手或雙手持用的直刃長劍。劈、刺、撩皆可;重攻擊時格擋能力下降。",
     "subskills": [
-      { "name": "招架", "type": "link", "effect": "以長劍招架時 +10/級", "condition": "招架", "difficulty": "easy", "unlock_level": 1 },
-      { "name": "連刺", "type": "surge", "effect": "同一手番內上一擊擲骰成功,本擊 +10", "condition": "同一目標", "difficulty": "average", "unlock_level": 3 },
-      { "name": "卸刃", "type": "action", "effect": "招架成功且 D_def ≥ D_atk + 4 時,對手主手武器落地", "condition": "對手持兵器", "difficulty": "hard", "unlock_level": 4 }
+      { "name": "招架", "type": "link", "effect": "以長劍招架時 +10/級", "condition": "招架", "difficulty": 1, "unlock_level": 1 },
+      { "name": "連刺", "type": "surge", "effect": "同一手番內上一擊擲骰成功,本擊 +10", "condition": "同一目標", "difficulty": 2, "unlock_level": 3 },
+      { "name": "卸刃", "type": "action", "effect": "招架成功且 D_def ≥ D_atk + 4 時,對手主手武器落地", "condition": "對手持兵器", "difficulty": 3, "unlock_level": 4 }
     ],
     "canonical_stacks": [
       { "with": "戰鬥反應", "rationale": "搶先出手的順勢一劍", "needs_dm_check": false },
@@ -91,14 +92,14 @@
     "name": "招架",
     "category": "core",
     "attributes": ["Ski", "Str", "Wis"],
-    "difficulty_tier": "average",
+    "difficulty_tier": 3,
     "pool": "體力",
     "xp_pool": "combat",
     "untrained": "可試",
     "description": "以手中兵器接下攻擊。吸收量為該兵器的傷害骰;無副技能不反傷。",
     "subskills": [
-      { "name": "長劍", "type": "link", "effect": "以長劍招架時 +10/級", "condition": "長劍", "difficulty": "easy", "unlock_level": 1 },
-      { "name": "反震", "type": "action", "effect": "D_def > D_atk 時差值反傷對手", "condition": "招架成功", "difficulty": "hard", "unlock_level": 3 }
+      { "name": "長劍", "type": "link", "effect": "以長劍招架時 +10/級", "condition": "長劍", "difficulty": 1, "unlock_level": 1 },
+      { "name": "反震", "type": "action", "effect": "D_def > D_atk 時差值反傷對手", "condition": "招架成功", "difficulty": 3, "unlock_level": 3 }
     ],
     "canonical_stacks": [],
     "defense_layer": "parry",
