@@ -1,0 +1,476 @@
+{
+  "$comment": "NPC 模板(Session 3 草擬,KK 審後定稿)。模擬與桌上共用。模板 = 屬性傾向 + 技能與等級範圍 + 副技能 + 裝備 + 一句來歷。全部難度 1;宗門弟子的本門技能難度 2。provenance 標明哪些欄位來自 play/README.md、哪些是草擬,方便審稿。技能名稱對應 skills/core.json;副技能只用 core.json 已掛在該技能上的那一個。",
+  "fields": {
+    "attr_lean": "high/low 為屬性傾向代碼清單;數值化留給使用端(模擬另有假設,見 sim/REPORT.md)",
+    "skills[].level": "[下限, 上限],等級範圍",
+    "skills[].tier": "持有難度階",
+    "skills[].subskills": "已持有的副技能與等級(散修 ≤ 1 級、難度 ≤ 持有難度階)",
+    "group": "出現時的群體性質;null = 單人"
+  },
+  "templates": [
+    {
+      "id": "biaoshi",
+      "name": "鏢師",
+      "origin": "護送商隊走陸路的鏢局夥計,吃的是力氣飯,刀口上的場面見過幾回。",
+      "attr_lean": {
+        "high": [
+          "Str",
+          "Con"
+        ],
+        "low": []
+      },
+      "skills": [
+        {
+          "skill": "單刀",
+          "level": [
+            2,
+            4
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "招架",
+          "level": [
+            2,
+            3
+          ],
+          "tier": 1,
+          "subskills": [
+            {
+              "name": "反擊",
+              "level": 1
+            }
+          ]
+        },
+        {
+          "skill": "格擋",
+          "level": [
+            1,
+            2
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "察覺",
+          "level": [
+            1,
+            2
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "駕車",
+          "level": [
+            1,
+            2
+          ],
+          "tier": 1
+        }
+      ],
+      "equipment": [
+        "單刀",
+        "小盾"
+      ],
+      "group": null,
+      "provenance": {
+        "readme": [
+          "attr_lean.high",
+          "單刀 等級範圍與難度",
+          "招架 等級範圍",
+          "反擊 1",
+          "equipment"
+        ],
+        "draft": [
+          "格擋",
+          "察覺",
+          "駕車",
+          "origin"
+        ]
+      }
+    },
+    {
+      "id": "zongmen_dizi",
+      "name": "宗門弟子",
+      "origin": "山上宗門的記名弟子,劍是師父手把手教的,下山辦事或歷練。",
+      "attr_lean": {
+        "high": [
+          "Ski",
+          "Agi"
+        ],
+        "low": []
+      },
+      "skills": [
+        {
+          "skill": "本門劍法",
+          "placeholder": true,
+          "family": "劍法",
+          "based_on": "長劍",
+          "level": [
+            2,
+            3
+          ],
+          "tier": 2,
+          "subskills": [
+            {
+              "name": null,
+              "slot": "專屬",
+              "level": 1
+            }
+          ]
+        },
+        {
+          "skill": "步法",
+          "level": [
+            2,
+            2
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "招架",
+          "level": [
+            1,
+            2
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "閃避",
+          "level": [
+            1,
+            2
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "讀寫",
+          "level": [
+            1,
+            1
+          ],
+          "tier": 1
+        }
+      ],
+      "equipment": [
+        "長劍"
+      ],
+      "group": null,
+      "provenance": {
+        "readme": [
+          "本門劍法 難度 2 與 2–3 級",
+          "專屬副技能一個(位置,不預填)",
+          "步法 2"
+        ],
+        "draft": [
+          "attr_lean",
+          "招架",
+          "閃避",
+          "讀寫",
+          "equipment",
+          "origin"
+        ]
+      },
+      "note": "本門劍法是高階技能佔位(原則 7b:跑團中依宗門當場生成並審核),屬性與武器沿用 based_on 指定的核心技能;專屬副技能留空。"
+    },
+    {
+      "id": "shanzei",
+      "name": "山賊",
+      "origin": "佔著山道收買路錢的一夥人,什麼都會一點,什麼都不精,靠人多壯膽。",
+      "attr_lean": {
+        "high": [],
+        "low": []
+      },
+      "skills": [
+        {
+          "skill": "單刀",
+          "level": [
+            1,
+            2
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "長棍",
+          "level": [
+            1,
+            2
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "閃避",
+          "level": [
+            1,
+            2
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "招架",
+          "level": [
+            1,
+            1
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "威嚇",
+          "level": [
+            1,
+            2
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "潛行",
+          "level": [
+            1,
+            2
+          ],
+          "tier": 1
+        }
+      ],
+      "equipment": [
+        "單刀",
+        "長棍"
+      ],
+      "group": "人多",
+      "provenance": {
+        "readme": [
+          "全難度 1",
+          "等級 1–2",
+          "group",
+          "attr_lean(無傾向)"
+        ],
+        "draft": [
+          "各技能清單",
+          "equipment",
+          "origin"
+        ]
+      },
+      "note": "『雜』:同一模板的個體各取一種兵器;單刀與長棍擇一為主用。"
+    },
+    {
+      "id": "langzhong",
+      "name": "郎中",
+      "origin": "鄉鎮醫館的坐堂大夫,常走方出診,見多了傷與病,自保靠一根竹杖與一副腳程。",
+      "attr_lean": {
+        "high": [
+          "Int",
+          "Wis"
+        ],
+        "low": [
+          "Str"
+        ]
+      },
+      "skills": [
+        {
+          "skill": "醫術",
+          "level": [
+            2,
+            3
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "藥理",
+          "level": [
+            1,
+            2
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "察覺",
+          "level": [
+            1,
+            2
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "閃避",
+          "level": [
+            1,
+            2
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "長棍",
+          "level": [
+            1,
+            1
+          ],
+          "tier": 1
+        }
+      ],
+      "equipment": [
+        "長棍"
+      ],
+      "group": null,
+      "provenance": {
+        "readme": [
+          "郎中 列為例子"
+        ],
+        "draft": [
+          "全部"
+        ]
+      }
+    },
+    {
+      "id": "bukuai",
+      "name": "捕快",
+      "origin": "縣衙在籍的差役,拿人與押人是日常,見過的歹人比見過的青天多。",
+      "attr_lean": {
+        "high": [
+          "Con",
+          "Ski"
+        ],
+        "low": []
+      },
+      "skills": [
+        {
+          "skill": "單刀",
+          "level": [
+            1,
+            3
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "招架",
+          "level": [
+            1,
+            2
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "律令",
+          "level": [
+            1,
+            2
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "搜索",
+          "level": [
+            1,
+            2
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "威嚇",
+          "level": [
+            1,
+            2
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "追蹤",
+          "level": [
+            1,
+            1
+          ],
+          "tier": 1
+        }
+      ],
+      "equipment": [
+        "單刀"
+      ],
+      "group": null,
+      "provenance": {
+        "readme": [
+          "捕快 列為例子"
+        ],
+        "draft": [
+          "全部"
+        ]
+      }
+    },
+    {
+      "id": "youxia",
+      "name": "遊俠",
+      "origin": "沒有門派的浪跡劍客,靠一把劍與一雙腿過日子,見識廣,行事不拘規矩。",
+      "attr_lean": {
+        "high": [
+          "Agi",
+          "Ski"
+        ],
+        "low": []
+      },
+      "skills": [
+        {
+          "skill": "長劍",
+          "level": [
+            2,
+            3
+          ],
+          "tier": 1,
+          "subskills": [
+            {
+              "name": "招架",
+              "level": 1
+            }
+          ]
+        },
+        {
+          "skill": "閃避",
+          "level": [
+            2,
+            3
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "招架",
+          "level": [
+            1,
+            2
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "步法",
+          "level": [
+            1,
+            2
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "戰鬥反應",
+          "level": [
+            1,
+            2
+          ],
+          "tier": 1
+        },
+        {
+          "skill": "江湖見聞",
+          "level": [
+            1,
+            2
+          ],
+          "tier": 1
+        }
+      ],
+      "equipment": [
+        "長劍"
+      ],
+      "group": null,
+      "provenance": {
+        "readme": [
+          "遊俠 列為例子"
+        ],
+        "draft": [
+          "全部"
+        ]
+      }
+    }
+  ]
+}

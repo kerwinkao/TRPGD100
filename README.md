@@ -11,7 +11,10 @@ design/progression.md    兩池經驗、用則長、創角
 design/skill-schema.json 技能資料庫 schema + 範例
 design/open-questions.md 待定事項(設計/模擬/確認)
 sim/spec.md              resolve.py 規格與實驗
+sim/REPORT.md            各輪模擬報告(Session 1–3)
+skills/core.json         核心入門技能表(每 family 一門、難度 1 起始)
 play/README.md           模型 DM:引導創角、間隔期單人戲、NPC 模板
+play/npc/templates.json  NPC 模板(與 sim/ 共用)
 ```
 
 ## 雲端 session 派工(建議順序)

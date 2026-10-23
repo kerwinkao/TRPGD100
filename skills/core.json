@@ -1,0 +1,1179 @@
+{
+  "$comment": "核心入門技能表(Session 3)。每個 family 一門、難度 1 起始、max_tier 5;每條至多一個難度 1 副技能,不填高階副技能(原則 7b:技能表不是選單)。欄位依 design/skill-schema.json;三屬性依 design/attributes.md 的 Int/Wis 口訣(Int=知道、記得、算得出;Wis=看懂、判斷、舉一反三)。canonical_stacks 只填 schema example 已有的長劍兩條,其餘留空(疊加白名單的初始內容待裁)。",
+  "schema": "design/skill-schema.json",
+  "skills": [
+    {
+      "name": "長劍",
+      "aliases": [
+        "劍法(長劍)",
+        "基礎劍法"
+      ],
+      "category": "core",
+      "family": "劍法",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Str",
+        "Ski",
+        "Agi"
+      ],
+      "max_tier": 5,
+      "pool": "體力",
+      "xp_pool": "combat",
+      "untrained": "可試",
+      "description": "單手或雙手持用的直刃長劍。劈、刺、撩皆可;重攻擊時格擋能力下降。",
+      "subskills": [
+        {
+          "name": "招架",
+          "type": "link",
+          "effect": "以長劍招架時 +10/級",
+          "condition": "招架",
+          "difficulty": 1,
+          "unlock_level": 1
+        }
+      ],
+      "canonical_stacks": [
+        {
+          "with": "戰鬥反應",
+          "rationale": "搶先出手的順勢一劍",
+          "needs_dm_check": false
+        },
+        {
+          "with": "內功",
+          "rationale": "以內力催動劍勢",
+          "needs_dm_check": false
+        }
+      ],
+      "defense_layer": "parry",
+      "crit_flavor": "劍尖自縫隙滑入,對方甚至來不及看清。",
+      "fumble_flavor": "劍刃在骨上卡住,整個人被拖了半步。"
+    },
+    {
+      "name": "單刀",
+      "aliases": [
+        "刀法",
+        "基礎刀法"
+      ],
+      "category": "core",
+      "family": "刀法",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Str",
+        "Ski",
+        "Con"
+      ],
+      "max_tier": 5,
+      "pool": "體力",
+      "xp_pool": "combat",
+      "untrained": "可試",
+      "description": "單面開刃的闊身刀。以劈砍為主,靠重量與腰力把刀勢壓下去。",
+      "subskills": [
+        {
+          "name": "招架",
+          "type": "link",
+          "effect": "以單刀招架時 +10/級",
+          "condition": "招架",
+          "difficulty": 1,
+          "unlock_level": 1
+        }
+      ],
+      "canonical_stacks": [],
+      "defense_layer": "parry",
+      "crit_flavor": "刀背一沉,刀口順著肩線劈進去。",
+      "fumble_flavor": "刀勢用老,刀尖鑿進地面,拔不出來。"
+    },
+    {
+      "name": "長槍",
+      "aliases": [
+        "槍法",
+        "基礎槍法"
+      ],
+      "category": "core",
+      "family": "槍法",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Str",
+        "Agi",
+        "Wis"
+      ],
+      "max_tier": 5,
+      "pool": "體力",
+      "xp_pool": "combat",
+      "untrained": "可試",
+      "description": "丈許長的槍。重點在拿捏距離:戳、挑、掃,靠步子與判斷把人擋在槍尖之外。",
+      "subskills": [
+        {
+          "name": "招架",
+          "type": "link",
+          "effect": "以長槍招架時 +10/級",
+          "condition": "招架",
+          "difficulty": 1,
+          "unlock_level": 1
+        }
+      ],
+      "canonical_stacks": [],
+      "defense_layer": "parry",
+      "crit_flavor": "槍尖抖開一朵花,最後一點直取咽喉。",
+      "fumble_flavor": "槍桿被對手夾住,前手一滑,整個人撲了出去。"
+    },
+    {
+      "name": "長棍",
+      "aliases": [
+        "棍法",
+        "基礎棍法"
+      ],
+      "category": "core",
+      "family": "棍法",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Str",
+        "Con",
+        "Agi"
+      ],
+      "max_tier": 5,
+      "pool": "體力",
+      "xp_pool": "combat",
+      "untrained": "可試",
+      "description": "齊眉的硬木長棍。掃、砸、戳、撥,兩頭都能用,力氣與耐力撐得起來才使得動。",
+      "subskills": [
+        {
+          "name": "招架",
+          "type": "link",
+          "effect": "以長棍招架時 +10/級",
+          "condition": "招架",
+          "difficulty": 1,
+          "unlock_level": 1
+        }
+      ],
+      "canonical_stacks": [],
+      "defense_layer": "parry",
+      "crit_flavor": "棍梢掃過膝彎,對方連人帶勢整個翻倒。",
+      "fumble_flavor": "棍頭撞上門框,虎口一麻,棍子脫手飛出。"
+    },
+    {
+      "name": "拳腳",
+      "aliases": [
+        "拳法",
+        "基礎拳腳"
+      ],
+      "category": "core",
+      "family": "拳法",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Str",
+        "Con",
+        "Ski"
+      ],
+      "max_tier": 5,
+      "pool": "體力",
+      "xp_pool": "combat",
+      "untrained": "可試",
+      "description": "不持兵器的打法。拳、掌、肘、膝、踢,全靠身體本身去撞、去抗。",
+      "subskills": [
+        {
+          "name": "招架",
+          "type": "link",
+          "effect": "以拳腳招架時 +10/級",
+          "condition": "招架",
+          "difficulty": 1,
+          "unlock_level": 1
+        }
+      ],
+      "canonical_stacks": [],
+      "defense_layer": "parry",
+      "crit_flavor": "拳頭落在肋下,對方像被抽掉了骨頭。",
+      "fumble_flavor": "一腳踢空,重心全壓在後腳,被人貼了上來。"
+    },
+    {
+      "name": "招架",
+      "aliases": [],
+      "category": "core",
+      "family": "招架",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Ski",
+        "Str",
+        "Wis"
+      ],
+      "max_tier": 5,
+      "pool": "體力",
+      "xp_pool": "combat",
+      "untrained": "可試",
+      "description": "以手中兵器接下攻擊。吸收量為該兵器的傷害骰;無副技能不反傷。",
+      "subskills": [
+        {
+          "name": "反擊",
+          "type": "action",
+          "effect": "D_def > D_atk 時,差值成為反擊傷害彈向攻方;攻方可付體力反應(走防禦鏈)",
+          "condition": "招架成功",
+          "difficulty": 1,
+          "unlock_level": 1
+        }
+      ],
+      "canonical_stacks": [],
+      "defense_layer": "parry",
+      "crit_flavor": "兵器相交,對方的劍勢被整個引偏。",
+      "fumble_flavor": "格開的角度錯了,劍鋒貼著手臂滑過。"
+    },
+    {
+      "name": "格擋",
+      "aliases": [],
+      "category": "core",
+      "family": "格擋",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Ski",
+        "Str",
+        "Wis"
+      ],
+      "max_tier": 5,
+      "pool": "體力",
+      "xp_pool": "combat",
+      "untrained": "可試",
+      "description": "以盾或護臂硬接。吸收量為盾值,固定不擲。需要有東西可擋。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": "block",
+      "crit_flavor": "盾面一抬,對方的力道原樣撞了回去。",
+      "fumble_flavor": "盾舉得太晚,邊緣被撥開,胸口門戶大開。"
+    },
+    {
+      "name": "閃避",
+      "aliases": [],
+      "category": "core",
+      "family": "閃避",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Agi",
+        "Con",
+        "Wis"
+      ],
+      "max_tier": 5,
+      "pool": "體力",
+      "xp_pool": "combat",
+      "untrained": "可試",
+      "description": "用身體躲開攻擊。靠看準來勢與腿腰的爆發,躲得越乾淨,削掉的攻勢越多。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": "dodge",
+      "crit_flavor": "刀鋒擦著衣襟過去,人已經在對方側面。",
+      "fumble_flavor": "往後一退踩到石頭,躲的方向剛好是來勢的方向。"
+    },
+    {
+      "name": "步法",
+      "aliases": [
+        "身法"
+      ],
+      "category": "core",
+      "family": "步法",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Agi",
+        "Ski",
+        "Con"
+      ],
+      "max_tier": 5,
+      "pool": "體力",
+      "xp_pool": "combat",
+      "untrained": "可試",
+      "description": "移動與站位的功夫。本身不擋不打,把落腳的好處交給下一個動作。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "半步換位,所有人都發現自己站在了錯的地方。",
+      "fumble_flavor": "兩腳絆在一起,當場摔了個跟頭。"
+    },
+    {
+      "name": "攀爬",
+      "aliases": [
+        "攀岩",
+        "爬牆"
+      ],
+      "category": "core",
+      "family": "攀爬",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Str",
+        "Agi",
+        "Ski"
+      ],
+      "max_tier": 5,
+      "pool": "體力",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "手腳並用往上爬:牆、樹、繩、崖壁。失手的代價是掉下來。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "指尖扣住一道看不見的縫,整個人順勢翻了上去。",
+      "fumble_flavor": "手一滑,抓著的那塊磚連同整個人一起往下掉。"
+    },
+    {
+      "name": "游泳",
+      "aliases": [
+        "泅水"
+      ],
+      "category": "core",
+      "family": "游泳",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Con",
+        "Str",
+        "Agi"
+      ],
+      "max_tier": 5,
+      "pool": "體力",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "在水裡換氣、移動、保持浮力。水流急、衣物重、時間長都會加難度。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "逆著暗流硬劃出一條斜線,爬上了對岸。",
+      "fumble_flavor": "腿抽筋了,嗆一口水,水面離得很遠。"
+    },
+    {
+      "name": "奔跑",
+      "aliases": [
+        "長跑",
+        "趕路"
+      ],
+      "category": "core",
+      "family": "奔跑",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Con",
+        "Agi",
+        "Str"
+      ],
+      "max_tier": 5,
+      "pool": "體力",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "短衝與長途腳力。追人、逃命、趕在城門關前進城。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "一口氣不換,把追兵甩出了兩條街。",
+      "fumble_flavor": "岔氣了,跑到一半只能彎著腰喘。"
+    },
+    {
+      "name": "潛行",
+      "aliases": [
+        "隱匿",
+        "躡足"
+      ],
+      "category": "core",
+      "family": "潛行",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Agi",
+        "Ski",
+        "Wis"
+      ],
+      "max_tier": 5,
+      "pool": "體力",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "不被看見、不被聽見地移動。要懂得看人的視線、聽腳下的響動。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "貼著牆根走過去,守衛的眼睛正好轉開。",
+      "fumble_flavor": "腳下一塊鬆瓦,在夜裡響得像敲鑼。"
+    },
+    {
+      "name": "騎術",
+      "aliases": [
+        "騎馬"
+      ],
+      "category": "core",
+      "family": "騎術",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Agi",
+        "Ski",
+        "Con"
+      ],
+      "max_tier": 5,
+      "pool": "體力",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "騎乘馬、騾等牲口,在顛簸中保持平衡並控制方向。戰馬、狹路、夜間加難度。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "貼著馬頸一伏,從低枝下整個鑽了過去。",
+      "fumble_flavor": "馬受驚人立起來,韁繩一鬆,人往後栽。"
+    },
+    {
+      "name": "內功",
+      "aliases": [
+        "吐納",
+        "調息"
+      ],
+      "category": "core",
+      "family": "內功",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Con",
+        "Cha",
+        "Wis"
+      ],
+      "max_tier": 5,
+      "pool": "內力",
+      "xp_pool": "either",
+      "untrained": "不可",
+      "description": "以呼吸與意念煉氣的功夫。等級至少一級才有內力,內力可付疊加與超量的代價。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "一口真氣貫到指尖,沉在丹田的力道同時炸開。",
+      "fumble_flavor": "氣走岔了經脈,胸口悶得像壓了一塊石頭。"
+    },
+    {
+      "name": "戰鬥反應",
+      "aliases": [
+        "先手",
+        "拔刀反應"
+      ],
+      "category": "core",
+      "family": "戰鬥反應",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Agi",
+        "Ski",
+        "Wis"
+      ],
+      "max_tier": 5,
+      "pool": "神識",
+      "xp_pool": "combat",
+      "untrained": "可試",
+      "description": "交手瞬間的第一反應:誰先動、看見破綻的那一刻手是否已在路上。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "對方肩頭才剛動,他的手已經先到了。",
+      "fumble_flavor": "看到殺氣的時候已經慢了半拍,只來得及閉眼。"
+    },
+    {
+      "name": "臨場反應",
+      "aliases": [
+        "應變",
+        "隨機應變"
+      ],
+      "category": "core",
+      "family": "臨場反應",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Wis",
+        "Int",
+        "Cha"
+      ],
+      "max_tier": 5,
+      "pool": "神識",
+      "xp_pool": "either",
+      "untrained": "可試",
+      "description": "事情脫軌的時候,腦子與嘴能不能馬上轉過來:改口、換計、找個台階。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "話才出口就改了方向,對方反倒覺得是自己會錯了意。",
+      "fumble_flavor": "腦子一片空白,張了嘴卻什麼都沒說出來。"
+    },
+    {
+      "name": "危機反應",
+      "aliases": [
+        "本能閃躲",
+        "第六感"
+      ],
+      "category": "core",
+      "family": "危機反應",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Con",
+        "Agi",
+        "Wis"
+      ],
+      "max_tier": 5,
+      "pool": "神識",
+      "xp_pool": "either",
+      "untrained": "可試",
+      "description": "沒準備好的時候身體自己動起來:塌方、落石、暗箭、腳下一空。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "背後的風聲一變,人已經撲了出去。",
+      "fumble_flavor": "聽到聲響卻原地楞住,連躲的念頭都沒生出來。"
+    },
+    {
+      "name": "察覺",
+      "aliases": [
+        "觀察",
+        "警覺"
+      ],
+      "category": "core",
+      "family": "察覺",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Wis",
+        "Int",
+        "Cha"
+      ],
+      "max_tier": 5,
+      "pool": "神識",
+      "xp_pool": "either",
+      "untrained": "可試",
+      "description": "注意到不對勁:一個人的神色、一處沾泥的鞋印、屋裡少了一樣東西。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "他看見了所有人都漏過的那個小東西,並且知道它是什麼。",
+      "fumble_flavor": "視線掃過那個破綻,卻當成了背景。"
+    },
+    {
+      "name": "搜索",
+      "aliases": [
+        "搜查",
+        "翻找"
+      ],
+      "category": "core",
+      "family": "搜索",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Wis",
+        "Int",
+        "Ski"
+      ],
+      "max_tier": 5,
+      "pool": "神識",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "有條理地翻找:屋子、貨箱、屍體、衣襟。靠手也靠腦子,知道東西會藏在哪。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "撬開第三塊地板,下面的布包果然還在。",
+      "fumble_flavor": "翻亂了現場,真正要找的東西反而被壓到了更深處。"
+    },
+    {
+      "name": "醫術",
+      "aliases": [
+        "療傷",
+        "郎中術"
+      ],
+      "category": "core",
+      "family": "醫術",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Int",
+        "Wis",
+        "Ski"
+      ],
+      "max_tier": 5,
+      "pool": "none",
+      "xp_pool": "either",
+      "untrained": "可試",
+      "description": "辨證、止血、接骨、縫合、用藥。處理的是活人,失敗的代價通常寫在病人身上。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "三根針落下,脈象立刻平了下來。",
+      "fumble_flavor": "下針偏了半分,病人臉色一下子白了。"
+    },
+    {
+      "name": "藥理",
+      "aliases": [
+        "本草",
+        "識藥"
+      ],
+      "category": "core",
+      "family": "藥理",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Int",
+        "Wis",
+        "Con"
+      ],
+      "max_tier": 5,
+      "pool": "none",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "認藥、配藥、辨毒。知道哪株草能救命,哪兩味混在一起會要命。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "只聞了一下,就說出了這碗湯裡不該有的那一味。",
+      "fumble_flavor": "兩味藥記反了,配出來的東西顏色不對。"
+    },
+    {
+      "name": "讀寫",
+      "aliases": [
+        "識字",
+        "文書"
+      ],
+      "category": "core",
+      "family": "讀寫",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Int",
+        "Ski",
+        "Wis"
+      ],
+      "max_tier": 5,
+      "pool": "none",
+      "xp_pool": "noncombat",
+      "untrained": "不可",
+      "description": "認字、讀文書、寫信寫契。不識字的人沒有這項,試也沒用。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "契紙翻到最後一頁,他發現了那行用小字寫的條款。",
+      "fumble_flavor": "把『不得』看成『得』,簽下去才發現讀反了。"
+    },
+    {
+      "name": "算學",
+      "aliases": [
+        "算術",
+        "記帳"
+      ],
+      "category": "core",
+      "family": "算學",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Int",
+        "Wis",
+        "Ski"
+      ],
+      "max_tier": 5,
+      "pool": "none",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "算數、打算盤、看帳、估貨。帳目上的破綻往往就在一個進位。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "心算比帳房的算盤還快,錯在哪一行立刻指得出來。",
+      "fumble_flavor": "進位進錯了一位,整本帳都跟著歪了。"
+    },
+    {
+      "name": "江湖見聞",
+      "aliases": [
+        "見聞",
+        "門道"
+      ],
+      "category": "core",
+      "family": "見聞",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Int",
+        "Wis",
+        "Cha"
+      ],
+      "max_tier": 5,
+      "pool": "none",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "各門各派、各路人物、各條道的規矩與傳聞。聽過、記得、知道該信幾分。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "光看那把刀的刀穗顏色,就說出了對方的來歷。",
+      "fumble_flavor": "把兩個同名的人記成一個,講了一段全錯的故事。"
+    },
+    {
+      "name": "律令",
+      "aliases": [
+        "衙門規矩",
+        "刑名"
+      ],
+      "category": "core",
+      "family": "律令",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Int",
+        "Wis",
+        "Cha"
+      ],
+      "max_tier": 5,
+      "pool": "none",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "官府的條文、程序與慣例。哪件事歸誰管、什麼證據站得住,心裡有本帳。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "背出那一條已被廢止的舊例,堂上的人臉色變了。",
+      "fumble_flavor": "引錯了條款,反讓對方抓住了把柄。"
+    },
+    {
+      "name": "說服",
+      "aliases": [
+        "勸說",
+        "講理"
+      ],
+      "category": "core",
+      "family": "說服",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Cha",
+        "Wis",
+        "Int"
+      ],
+      "max_tier": 5,
+      "pool": "none",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "用道理與立場讓人改主意。對象有自己的利害,說得再好也只能在他願意的範圍內移動。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "只講了三句,對方自己把話接了下去。",
+      "fumble_flavor": "一句話踩到對方最忌諱的地方,整個場面冷下來。"
+    },
+    {
+      "name": "威嚇",
+      "aliases": [
+        "恫嚇",
+        "唬人"
+      ],
+      "category": "core",
+      "family": "威嚇",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Cha",
+        "Str",
+        "Con"
+      ],
+      "max_tier": 5,
+      "pool": "none",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "靠氣勢、體格與眼神讓人退縮。對方不怕的時候,這招就成了挑釁。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "站起身的那一下,整個屋子安靜了。",
+      "fumble_flavor": "喝了一聲,對方非但沒退,反而笑出來。"
+    },
+    {
+      "name": "欺瞞",
+      "aliases": [
+        "說謊",
+        "唬弄"
+      ],
+      "category": "core",
+      "family": "欺瞞",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Cha",
+        "Int",
+        "Wis"
+      ],
+      "max_tier": 5,
+      "pool": "none",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "把假的說得像真的:編故事、藏破綻、轉移注意。對方越懂行越難騙。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "謊話裡摻了三分真,連他自己都快信了。",
+      "fumble_flavor": "前後矛盾的細節一個接一個冒出來。"
+    },
+    {
+      "name": "議價",
+      "aliases": [
+        "講價",
+        "買賣"
+      ],
+      "category": "core",
+      "family": "議價",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Int",
+        "Wis",
+        "Cha"
+      ],
+      "max_tier": 5,
+      "pool": "none",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "估價、拉扯、讓步的時機。知道對方的底線,也知道自己的。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "沉默了三息,對方自己把價錢降了一成。",
+      "fumble_flavor": "開價太狠,對方轉身就走了。"
+    },
+    {
+      "name": "化妝",
+      "aliases": [
+        "儀容",
+        "儀態"
+      ],
+      "category": "core",
+      "family": "儀容",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Ski",
+        "Cha",
+        "Wis"
+      ],
+      "max_tier": 5,
+      "pool": "none",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "改變自己或別人的外貌與舉止:上妝、易容、衣著、站姿與談吐。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "換了一身行頭,連熟人都認不出來。",
+      "fumble_flavor": "妝抹得過了頭,反倒成了全場最顯眼的人。"
+    },
+    {
+      "name": "表演",
+      "aliases": [
+        "賣藝",
+        "說書"
+      ],
+      "category": "core",
+      "family": "表演",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Cha",
+        "Ski",
+        "Wis"
+      ],
+      "max_tier": 5,
+      "pool": "none",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "唱、說、雜耍、變戲法。吸引一群人的目光並讓他們停下來。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "最後一個抖包袱,滿座的人同時笑出聲。",
+      "fumble_flavor": "弦斷了,全場的眼睛都看向他。"
+    },
+    {
+      "name": "烹飪",
+      "aliases": [
+        "廚藝",
+        "做飯"
+      ],
+      "category": "core",
+      "family": "烹飪",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Ski",
+        "Wis",
+        "Int"
+      ],
+      "max_tier": 5,
+      "pool": "none",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "備料、掌火、調味。能在簡陋條件下把一頓飯做出來,也能看出別人的灶上動了什麼手腳。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "一鍋清湯,喝下去所有人都沉默了一會兒。",
+      "fumble_flavor": "火候看錯,鍋底糊了,整鍋都帶著焦味。"
+    },
+    {
+      "name": "鍛造",
+      "aliases": [
+        "打鐵",
+        "鐵匠"
+      ],
+      "category": "core",
+      "family": "鍛造",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Str",
+        "Ski",
+        "Con"
+      ],
+      "max_tier": 5,
+      "pool": "體力",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "鍛打金屬成形:修刀、釘馬掌、打鐵器。出力久,也要掌握火色。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "錘落三下,刀口的紋路自己現了出來。",
+      "fumble_flavor": "淬火太急,刀身上炸開一道裂紋。"
+    },
+    {
+      "name": "手藝",
+      "aliases": [
+        "木工",
+        "編織"
+      ],
+      "category": "core",
+      "family": "手藝",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Ski",
+        "Int",
+        "Str"
+      ],
+      "max_tier": 5,
+      "pool": "none",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "木、竹、繩、布、皮的加工。修一張桌、編一個筐、縫一副護具。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "不用釘子,榫卯扣上,紋絲不動。",
+      "fumble_flavor": "一刀削過頭,整塊料就廢了。"
+    },
+    {
+      "name": "開鎖",
+      "aliases": [
+        "撬鎖",
+        "機關"
+      ],
+      "category": "core",
+      "family": "開鎖",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Ski",
+        "Wis",
+        "Int"
+      ],
+      "max_tier": 5,
+      "pool": "none",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "用細工具開鎖、拆簡單機關。靠手感,也靠對構造的理解。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "喀的一聲,鎖舌退回,門縫裡連一絲聲響都沒漏。",
+      "fumble_flavor": "撬棍折在鎖眼裡,斷頭卡死,再也打不開了。"
+    },
+    {
+      "name": "野外求生",
+      "aliases": [
+        "野營",
+        "山林"
+      ],
+      "category": "core",
+      "family": "求生",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Con",
+        "Wis",
+        "Int"
+      ],
+      "max_tier": 5,
+      "pool": "體力",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "野外找水、生火、辨方向、搭棚、避獸。沒有屋頂的幾天裡,這是命。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "天黑前找到避風的石縫,火也生了起來。",
+      "fumble_flavor": "走了半天,繞回自己剛剛才經過的那棵樹。"
+    },
+    {
+      "name": "追蹤",
+      "aliases": [
+        "尋蹤",
+        "跟梢"
+      ],
+      "category": "core",
+      "family": "追蹤",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Wis",
+        "Int",
+        "Con"
+      ],
+      "max_tier": 5,
+      "pool": "體力",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "跟著痕跡找人與獸:腳印、折枝、灰燼的餘溫。耐心與判斷缺一不可。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "彎下腰摸了摸草根,說:『一個時辰前,往北。』",
+      "fumble_flavor": "把野鹿的蹄印當成了人的腳印,追了半天反倒迷路了。"
+    },
+    {
+      "name": "駕車",
+      "aliases": [
+        "趕車",
+        "馭馬車"
+      ],
+      "category": "core",
+      "family": "駕車",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Ski",
+        "Agi",
+        "Wis"
+      ],
+      "max_tier": 5,
+      "pool": "none",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "駕馭馬車、牛車:控速、轉彎、避障,保持貨物不翻。山路、夜路、追逐都加難度。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "車輪擦著崖邊轉過去,貨物一件沒灑。",
+      "fumble_flavor": "轉彎太急,車軸斷了,貨箱滾進溝裡。"
+    },
+    {
+      "name": "賭術",
+      "aliases": [
+        "賭博",
+        "搖骰"
+      ],
+      "category": "core",
+      "family": "賭術",
+      "lineage": {
+        "base_tier": 1,
+        "prerequisite": null
+      },
+      "attributes": [
+        "Int",
+        "Cha",
+        "Ski"
+      ],
+      "max_tier": 5,
+      "pool": "none",
+      "xp_pool": "noncombat",
+      "untrained": "可試",
+      "description": "骰子、牌、棋類賭局。算機率、讀對手,也有手上功夫的成分。",
+      "subskills": [],
+      "canonical_stacks": [],
+      "defense_layer": null,
+      "crit_flavor": "骰盅一開,所有人都盯著那個他早就算到的點數。",
+      "fumble_flavor": "手上的暗牌掉在桌上,全場安靜。"
+    }
+  ]
+}

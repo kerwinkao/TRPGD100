@@ -61,8 +61,32 @@ class Params:
     hp: int = 30                         # A11:生命值公式待定,先用常數
     weapon_die: int = 8                  # 長劍 1d8
 
+    # Session 3 規則開關。預設值維持 Session 2 行為(舊測試與 Session 2 實驗不變);
+    # Session 3 實驗用 s3_params() 一次打開。
+    hp_model: str = "const"              # 'const' 用 hp;'str_con' 上限 = Str+Con(attributes.md)
+    stamina_model: str = "const"         # 'const' 預設 28;'con' 體力池 = Con+Con
+    regen_model: str = "const"           # 'const' 用 regen_stamina;'con' = Con 效益值 ⌊(Con−10)/2⌋ 下限 0
+    damage_model: str = "flat"           # 'flat' Session 2(骰 + 溢出點);'s3' (骰 + 屬性補正) × (1 + 溢出/100)
+    activate: str = "always"             # 副技能發動策略:'always' 付得起就發動;'never' 不發動(+1/個,不進累進格)
+    react: str = "always"                # 事件→被動反應:'always' 付得起就反應;'never' 不反應吃後果
+    sub_order: str = "link_first"        # 付不起全部副技能時,依序發動前 k 個(A43):'link_first' link 先、反擊後;'counter_first' 反擊先
+    end_on: str = "incap"                # 戰鬥終止:'incap' 輕傷位 0 失能即結束(設計文件);'death' 打到重傷位 0 才結束(A40,擊殺矩陣用)
+    stack_pay: str = "slot"              # 疊加付費:'slot' 佔被疊技能的格、走累進與低價;'none' 免費(Session 1 舊讀法)
+
 
 DEFAULT = Params()
+
+
+def s3_params(**kw) -> Params:
+    """Session 3 規則一次打開:Str+Con 上限、Con+Con 體力池、Con 效益值回復、乘數溢傷加屬性補正。"""
+    base = dict(hp_model="str_con", stamina_model="con", regen_model="con", damage_model="s3")
+    base.update(kw)
+    return Params(**base)
+
+
+def effect_value(attr: int) -> int:
+    """屬性效益值(attributes.md 通則):⌊(屬性 − 10) / 2⌋,下限 0。14 → 2,20 → 5。"""
+    return max(0, (attr - 10) // 2)
 
 
 # ---------------------------------------------------------------------------
@@ -145,12 +169,16 @@ def overflow(skill: int) -> int:
 
 
 def check(skill: int, rng: RNG, *, crit_bonus: int = 0, rerolls: int = 0,
+          reroll_any: bool = False,
           params: Params = DEFAULT, log: Optional[list] = None,
           ctx: Optional[Ctx] = None) -> Result:
-    """一次判定。rerolls = 重骰類副技能可用次數(只能消 00)。每擲寫一列紀錄。"""
+    """一次判定。rerolls = 重骰類副技能可用次數(只能消 00)。每擲寫一列紀錄(重骰只記最後一擲)。
+    reroll_any = 任意重骰(【劍意】類):第一擲不是成功(含特誤)就重擲一次,取後者(策略假設,A39)。"""
     r = roll(rng)
     while r == 100 and rerolls > 0:          # 重骰只消 00(硬禁令)
         rerolls -= 1
+        r = roll(rng)
+    if reroll_any and (r > skill or r > fumble_floor(skill)):
         r = roll(rng)
     fumble = r > fumble_floor(skill)
     success = r <= skill
@@ -286,6 +314,15 @@ def parry(skill: int, weapon_die: int, rng: RNG, *, params: Params = DEFAULT,
     return rng.randint(1, weapon_die) if res.success else None
 
 
+def parry_ex(skill: int, weapon_die: int, rng: RNG, *, params: Params = DEFAULT,
+             log: Optional[list] = None, ctx: Optional[Ctx] = None) -> tuple:
+    """同 parry,另回傳擲骰幅度:(D_def 或 None, 幅度)。反擊事件用幅度當 T(A37)。"""
+    res = check(skill, rng, params=params, log=log, ctx=replace(ctx or Ctx(), skill="招架"))
+    if not res.success:
+        return None, 0
+    return rng.randint(1, weapon_die), res.margin
+
+
 def block(skill: int, shield_value: int, rng: RNG, *, params: Params = DEFAULT,
           log: Optional[list] = None, ctx: Optional[Ctx] = None) -> Optional[int]:
     """格擋:技能 +10(裝備加成);成功 → D_def = 盾值(固定),失敗或特誤 → None。"""
@@ -305,3 +342,12 @@ def damage(weapon_die: int, overflow_pts: int, crit: bool, D_def: int, rng: RNG)
     傷害 = max(0, D_atk − D_def)。T 不進傷判(A9)。"""
     die = weapon_die if (crit and overflow_pts > 0) else rng.randint(1, weapon_die)
     return max(0, die + overflow_pts - D_def)
+
+
+def damage_s3(weapon_die: int, bonus: int, overflow_pts: int, crit: bool, D_def: int,
+              rng: RNG) -> tuple:
+    """Session 3 傷判:D_atk = 四捨五入((骰 + 屬性補正) × (1 + 溢出/100));溢出狀態下致命 → 骰滿骰。
+    傷害 = max(0, D_atk − D_def)。回傳 (傷害, D_atk)。例:長劍、Str 14、技能 125 致命 → (8+2)×1.25 → 13。"""
+    die = weapon_die if (crit and overflow_pts > 0) else rng.randint(1, weapon_die)
+    d_atk = ((die + bonus) * (100 + overflow_pts) + 50) // 100
+    return max(0, d_atk - D_def), d_atk
