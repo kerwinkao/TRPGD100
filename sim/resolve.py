@@ -78,6 +78,11 @@ class Params:
     link_bonus: int = 10                 # link 每級加成(E9 掃 {10,15,20})
     neili_model: str = "skill_value"     # 'skill_value' 內力池 = 內功技能值(A12);'s4' 效益值和 × 難度階 × 等級,三種用途
     neili_stack: bool = True             # 內力疊發:同一動作可灌多次輸出;False 每動作只灌一次輸出
+    # Session 5:主動權交換
+    initiative: str = "turns"            # 'turns' 雙方各一手番(Session 2–4,A28);'swap' 主動權交換(resolution「主動權交換」)
+    counter_policy: str = "never"        # 守方被攻擊時是否對攻:'never' 一律防 | 'always' 付得起就對攻 | 'lead' 輕傷位領先攻方時對攻
+    counter_initiative: str = "by_hit"   # 對攻之後主動權:'by_hit' 攻方擲骰成功才保有 | 'keep' 攻方一律保有(A67)
+    dodge_swap: str = "full"             # 閃避算不算「防禦成功」:'full' 只有全閃 | 'any' 閃避擲骰成功(含部分侵蝕)即算(A68)
     stack_pay: str = "slot"              # 疊加付費:'slot' 佔被疊技能的格、走累進與低價;'none' 免費(Session 1 舊讀法)
 
 
@@ -97,6 +102,13 @@ def s4_params(**kw) -> Params:
     base = dict(sub_fee=0.2, reroll_pool="shenshi", neili_model="s4")
     base.update(kw)
     return s3_params(**base)
+
+
+def s5_params(**kw) -> Params:
+    """Session 5:Session 4 全部 + 主動權交換(取代雙方各一手番)。counter_policy 預設 'never',實驗另掃。"""
+    base = dict(initiative="swap")
+    base.update(kw)
+    return s4_params(**base)
 
 
 def effect_value(attr: int) -> int:
@@ -338,6 +350,20 @@ def dodge(T: int, skill: int, level: int, rng: RNG, *, params: Params = DEFAULT,
     if m >= T:
         return 0, True
     return T - min(m, 10 * level), False
+
+
+def dodge_ex(T: int, skill: int, level: int, rng: RNG, *, params: Params = DEFAULT,
+             log: Optional[list] = None, ctx: Optional[Ctx] = None) -> tuple:
+    """同 dodge,另回傳擲骰是否成功:(T_left, 全閃, 擲骰成功)。主動權交換的 dodge_swap='any' 要用
+    (零級閃避的侵蝕上限為 0,T 不變,不能用 T_left < T 判斷成功)。"""
+    c = replace(ctx or Ctx(), skill="閃避", challenge_value=T)
+    res = check(skill, rng, params=params, log=log, ctx=c)
+    if not res.success:
+        return T, False, False
+    m = res.margin
+    if m >= T:
+        return 0, True, True
+    return T - min(m, 10 * level), False, True
 
 
 def parry(skill: int, weapon_die: int, rng: RNG, *, params: Params = DEFAULT,

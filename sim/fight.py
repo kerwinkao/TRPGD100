@@ -17,6 +17,12 @@ Session 4 加入(同樣由 Params 開關啟用,s4_params() 一次打開):
 - 內力三種用途(攻擊灌注 / 防禦吸收 / 療傷):池量與等級上限由 Con/Cha/Wis 效益值決定,單次輸出上限、
   每回合輸出次數、疊發分發、三類各自冷卻一回合、戰鬥中不回。
 
+Session 5 加入(Params.initiative='swap' / s5_params()):
+- 主動權交換取代「雙方各一手番」:持主動者出手,守方任一防禦層成功(全閃 / 招架成功 / 格擋成功)就接手主動,
+  攻擊落空也交出;全部失敗則攻方保有主動;持主動者付不起或不想攻就停手交出;雙方連續停手 = 回合結束。
+- 守方可改為對攻(Params.counter_policy / Build.counter_policy):不防,雙方同時擲骰、同時結算傷害,雙方都不防。
+- 量測:主動權交換次數(依成因)、連續出手長度、對攻發生率(FightOut.flow、Stats.ca_*)。
+
 結構(spec.md「回合狀態」):
 - 三個消耗格:手 / 腳 / 腦。回合內同格第 k 動耗 k 點;技能等級給 ceil(level/2) 次低價(各 1 點)。回合末歸零。
 - 一回合 = 雙方各自的「手番」依序一次;手番內可連續出手,直到一動的價碼超過 act_threshold 或付不起。
@@ -29,7 +35,7 @@ import math
 from dataclasses import dataclass
 from typing import Optional
 
-from resolve import (Ctx, Params, block, check, damage, damage_s3, dodge, effect_value,
+from resolve import (Ctx, Params, block, check, damage, damage_s3, dodge, dodge_ex, effect_value,
                      max_dice, overflow, parry, parry_ex, roll_dice, shield_value, step)
 
 BASE = 42  # 均值角色(全 14)模擬技能的底值
@@ -96,6 +102,8 @@ class Build:
     neili_tier: int = 1                # 內功持有難度階序號(散修 1;1 散修、2 內門、3 嫡傳、4 以上修真)
     neili_use: tuple = ()              # 內力用途優先序:'attack' | 'defense' | 'heal' 的子集;() = 不用內力
     neili_alloc: Optional[dict] = None # 每次輸出分給各用途的點數(分發),如 {"attack": 2, "defense": 1};None = 全給 neili_use 第一項
+    # ---- Session 5 ----
+    counter_policy: Optional[str] = None   # 守方對攻策略;None = 用 Params.counter_policy
 
     def level(self, key: str) -> int:
         if self.level_override and key in self.level_override:
@@ -200,7 +208,8 @@ class Stats:
                  "sub_fee", "stack_acts", "sub_active", "ev_gen", "ev_dmg_dealt",
                  "ev_reacted", "ev_ignored", "ev_dmg_taken", "ev_react_cost",
                  "sub_offered", "shen_spent", "qi_atk_pts", "qi_atk_dmg", "qi_def_pts", "qi_def_abs",
-                 "qi_heal_pts", "qi_heal_amt", "heal_acts")
+                 "qi_heal_pts", "qi_heal_amt", "heal_acts",
+                 "ca_n", "ca_decisions", "ca_unaffordable")
 
     def __init__(self):
         for k in self.__slots__:
@@ -412,7 +421,7 @@ def _defend(d: Build, sd: State, T: int, p: Params, rng, log, d_ctx: Ctx, react:
     dst = sd.st
     boost = {"dodge": 0, "parry": 0, "block": 0}
     out = dict(full=False, T_after=T, d_par=None, d_blk=None, D_def=0, par_margin=0,
-               counter_on=False, acted=False)
+               counter_on=False, acted=False, dodge_ok=False)
     if not react and d.step_def is not None and _can_use(d, p, d.step_def):
         if _try_pair(sd, d, "step", d.step_def, p):
             Sd = step(d.value("step"), rng, params=p, log=log, ctx=d_ctx)
@@ -425,10 +434,10 @@ def _defend(d: Build, sd: State, T: int, p: Params, rng, log, d_ctx: Ctx, react:
     if _try(sd, d, "dodge", p):
         out["acted"] = True
         dst.def_acts += 1
-        T_after, full = dodge(T, d.value("dodge") + boost["dodge"], d.level("dodge"), rng,
-                              params=p, log=log, ctx=replace_ctx(d_ctx, T))
+        T_after, full, ok = dodge_ex(T, d.value("dodge") + boost["dodge"], d.level("dodge"), rng,
+                                     params=p, log=log, ctx=replace_ctx(d_ctx, T))
         dst.dodge_try += 1
-        out["T_after"], out["full"] = T_after, full
+        out["T_after"], out["full"], out["dodge_ok"] = T_after, full, ok
     if out["full"]:
         return out
 
@@ -491,10 +500,10 @@ def _react_event(kind: str, dmg: int, T: int, b: Build, s: State, d: Build, sd: 
     return taken
 
 
-def _attack(i: int, key: str, b: Build, s: State, d: Build, sd: State, p: Params, rng,
-            log, ctx: Ctx, lianci_bonus: int):
-    """出手一次:先(選配)步法,再(選配)疊加與副技能,再武器擲骰;成功 → 守方走防禦鏈 → 傷判 → 事件。
-    回傳 None(沒出手:被門檻擋或付不起)或紀錄 tuple。"""
+def _pay_attack(i: int, key: str, b: Build, s: State, p: Params, rng, log, ctx: Ctx,
+                lianci_bonus: int):
+    """出手宣告並付費:(選配)步法 → 疊加與副技能發動(依偏好排序的動作串,付得起的第一串生效)→ 武器那一動。
+    回傳 None(被門檻擋或付不起)或宣告資料 dict(尚未擲攻擊骰,供守方選擇防或對攻)。"""
     S = 0
     a_ctx = Ctx(session=ctx.session, turn=ctx.turn, actor=b.name)
     if b.step_atk and _try_pair(s, b, "step", key, p):
@@ -503,7 +512,6 @@ def _attack(i: int, key: str, b: Build, s: State, d: Build, sd: State, p: Params
         s.st.step_ok += S > 0
         s.st.step_sum += S
 
-    # 疊加(只疊主手武器)與副技能發動:依偏好排序的動作串,付得起的第一串生效
     stacks = list(b.stacks) if key == "weapon" else []
     held = b.held_atk() if (p.activate != "never" and key == "weapon") else []
     variants, meta = [], []
@@ -517,41 +525,41 @@ def _attack(i: int, key: str, b: Build, s: State, d: Build, sd: State, p: Params
     if idx is None:
         return None
     ns, active = meta[idx]
-    act_crit, act_reroll = "crit_sub" in active, "reroll_any" in active
-    stack_sum = sum(b.stack_value(n, lv) for n, lv in stacks[:ns])
     st = s.st
     st.atk_acts += 1
     st.att += 1
     st.sub_active += len(active)
     st.sub_offered += len(held)
+    return dict(i=i, key=key, S=S, active=active, lianci=lianci_bonus,
+                stack_sum=sum(b.stack_value(n, lv) for n, lv in stacks[:ns]))
 
+
+def _roll_attack(pay: dict, b: Build, s: State, p: Params, rng, log, ctx: Ctx):
+    """擲攻擊骰。回傳 (結果, 有效技能值)。"""
+    key, active = pay["key"], pay["active"]
     pen_main, pen_off = dual_penalty(p)
     pen = 0
     if b.offhand is not None:
         pen = pen_main if key == "weapon" else pen_off
-    eff = max(b.value(key) - pen + S + lianci_bonus + stack_sum, 0)
-    res = check(eff, rng, crit_bonus=b.crit_bonus + (b.crit_sub if act_crit else 0),
-                reroll_any=act_reroll, params=p, log=log,
+    eff = max(b.value(key) - pen + pay["S"] + pay["lianci"] + pay["stack_sum"], 0)
+    res = check(eff, rng, crit_bonus=b.crit_bonus + (b.crit_sub if "crit_sub" in active else 0),
+                reroll_any="reroll_any" in active, params=p, log=log,
                 ctx=Ctx(session=ctx.session, turn=ctx.turn, actor=b.name,
                         skill=b.weapon_name if key == "weapon" else NAME[key]))
+    st = s.st
     if res.fumble:
         st.fumble += 1
-    if not res.success:                      # 失手(含 A21 攻方特誤)
-        return (i, key, False, False, res.fumble, S, False, 0, 0, None, None, 0, 0, None)
-    st.succ += 1
-    st.crit_roll += res.crit
-    T = res.margin
+    if res.success:
+        st.succ += 1
+        st.crit_roll += res.crit
+    return res, eff
 
-    # ---- 守方防禦鏈 ----
-    sd.st.faced += 1
-    r = _defend(d, sd, T, p, rng, log, Ctx(session=ctx.session, turn=ctx.turn, actor=d.name))
-    if r["full"]:
-        st.full_dodged += 1
-        return (i, key, True, res.crit, False, S, True, T, 0, None, None, 0, 0, None)
-    st.thru += 1
-    d_par, d_blk, D_def = r["d_par"], r["d_blk"], r["D_def"]
-    parts = [x for x in (d_par, d_blk) if x is not None]
 
+def _deal(pay: dict, res, eff: int, b: Build, s: State, d: Build, sd: State, p: Params, rng,
+          D_def: int, parts: list, opposed: bool = True) -> tuple:
+    """傷判並套用到守方。opposed=False(對攻):守方不防,也不用內力防禦吸收。
+    回傳 (實際傷害, D_atk 或 None, 類別)。"""
+    key, st = pay["key"], s.st
     ov = overflow(eff)
     die = DIE["weapon"] if key == "weapon" else DIE[key]
     d_atk = None
@@ -568,7 +576,7 @@ def _attack(i: int, key: str, b: Build, s: State, d: Build, sd: State, p: Params
             st.qi_atk_dmg += extra
         dmg, d_atk = damage_s3(die, effect_value(b.attr(attr)), ov, res.crit, D_def, rng, extra=extra)
         # 內力防禦吸收:守方被打中才付,點數取到剛好吃掉傷害(每點輕傷吸收 3、重傷吸收 1)
-        if dmg > 0 and "defense" in sd.allow:
+        if opposed and dmg > 0 and "defense" in sd.allow:
             need = -(-dmg // 3)
             dpts = sd.qi_take("defense", need)
             if dpts:
@@ -588,13 +596,93 @@ def _attack(i: int, key: str, b: Build, s: State, d: Build, sd: State, p: Params
         st.cat_n[cat] += 1
         st.cat_dmg[cat] += dealt
     sd.take(dmg, light_abs=light_abs, heavy_abs=absorbed)
-    dmg = dealt
+    return dealt, d_atk, cat
+
+
+def _attack(i: int, key: str, b: Build, s: State, d: Build, sd: State, p: Params, rng,
+            log, ctx: Ctx, lianci_bonus: int, info: Optional[dict] = None):
+    """出手一次(守方走防禦鏈):付費 → 擲骰 → 成功則守方防禦鏈 → 傷判 → 事件。
+    回傳 None(沒出手:被門檻擋或付不起)或紀錄 tuple。info(選填)回填 hit / defended,
+    供主動權交換判斷:defended = 守方任一防禦層成功(全閃、招架成功、格擋成功;dodge_swap='any' 時閃避擲骰成功也算)。"""
+    pay = _pay_attack(i, key, b, s, p, rng, log, ctx, lianci_bonus)
+    if pay is None:
+        return None
+    return _attack_resolve(pay, b, s, d, sd, p, rng, log, ctx, info)
+
+
+def _attack_resolve(pay: dict, b: Build, s: State, d: Build, sd: State, p: Params, rng, log,
+                    ctx: Ctx, info: Optional[dict] = None):
+    i, key, S = pay["i"], pay["key"], pay["S"]
+    st = s.st
+    res, eff = _roll_attack(pay, b, s, p, rng, log, ctx)
+    if info is not None:
+        info.update(hit=res.success, defended=False)
+    if not res.success:                      # 失手(含 A21 攻方特誤)
+        return (i, key, False, False, res.fumble, S, False, 0, 0, None, None, 0, 0, None)
+    T = res.margin
+
+    # ---- 守方防禦鏈 ----
+    sd.st.faced += 1
+    r = _defend(d, sd, T, p, rng, log, Ctx(session=ctx.session, turn=ctx.turn, actor=d.name))
+    d_par, d_blk, D_def = r["d_par"], r["d_blk"], r["D_def"]
+    if info is not None:
+        info["defended"] = bool(r["full"] or d_par is not None or d_blk is not None
+                                or (p.dodge_swap == "any" and r["dodge_ok"]))
+    if r["full"]:
+        st.full_dodged += 1
+        return (i, key, True, res.crit, False, S, True, T, 0, None, None, 0, 0, None)
+    st.thru += 1
+    parts = [x for x in (d_par, d_blk) if x is not None]
+    dmg, d_atk, cat = _deal(pay, res, eff, b, s, d, sd, p, rng, D_def, parts)
 
     # ---- 事件:反擊(招架成功且 D_def > D_atk,差值彈向攻方)----
     if (r["counter_on"] and d_par is not None and d_atk is not None and sd.hp > 0
             and d_par > d_atk):
         _react_event("counter", d_par - d_atk, r["par_margin"], b, s, d, sd, p, rng, log, ctx)
     return (i, key, True, res.crit, False, S, False, T, r["T_after"], d_par, d_blk, D_def, dmg, cat)
+
+
+def _counter_attack_wanted(d: Build, sd: State, s: State, p: Params) -> bool:
+    """守方被攻擊時,依 counter_policy 決定要不要對攻(只有主動權交換模式才有這個選項)。"""
+    if p.initiative != "swap":
+        return False
+    pol = d.counter_policy or p.counter_policy
+    if pol == "always":
+        return True
+    if pol == "lead":
+        return sd.hp > s.hp                   # 輕傷位絕對值領先攻方(A69)
+    return False
+
+
+def _exchange(i: int, key: str, b: Build, s: State, d: Build, sd: State, p: Params, rng, log,
+              ctx: Ctx, bonus: int, info: dict):
+    """主動權交換下的一次出手:攻方宣告付費 → 守方選防或對攻 → 擲骰與結算。
+    對攻:守方也付一動(累進)出手,雙方各擲骰、各自傷判(誰都不防),同時套用傷害。
+    守方想對攻但付不起 → 退回走防禦鏈。回傳攻方紀錄 tuple(或 None),info 回填 hit / defended / counter / rec_d。"""
+    pay = _pay_attack(i, key, b, s, p, rng, log, ctx, bonus)
+    if pay is None:
+        return None
+    sd.st.ca_decisions += 1
+    info.update(counter=False, rec_d=None)
+    if _counter_attack_wanted(d, sd, s, p):
+        pay_d = _pay_attack(1 - i, "weapon", d, sd, p, rng, log, ctx, 0)
+        if pay_d is not None:
+            sd.st.ca_n += 1
+            info["counter"] = True
+            res_a, eff_a = _roll_attack(pay, b, s, p, rng, log, ctx)
+            res_d, eff_d = _roll_attack(pay_d, d, sd, p, rng, log, ctx)
+            recs = []
+            for (pay_x, res_x, eff_x, bx, sx, dx, sdx) in ((pay, res_a, eff_a, b, s, d, sd),
+                                                           (pay_d, res_d, eff_d, d, sd, b, s)):
+                dmg_x, cat_x = 0, None
+                if res_x.success:
+                    dmg_x, _da, cat_x = _deal(pay_x, res_x, eff_x, bx, sx, dx, sdx, p, rng, 0, [], opposed=False)
+                recs.append((pay_x["i"], pay_x["key"], res_x.success, res_x.crit, res_x.fumble, pay_x["S"],
+                             False, res_x.margin if res_x.success else 0, 0, None, None, 0, dmg_x, cat_x))
+            info.update(hit=res_a.success, defended=False, rec_d=recs[1])
+            return recs[0]
+        sd.st.ca_unaffordable += 1
+    return _attack_resolve(pay, b, s, d, sd, p, rng, log, ctx, info)
 
 
 def _heal(b: Build, s: State, p: Params, rng):
@@ -635,6 +723,15 @@ class FightOut:
     first_crit_hit: Optional[int] = None  # 第一個「致命且造成傷害」的一方
     stalled: bool = False      # 雙方池皆空且無回復 → 無人能再動,提前判平手(A30)
     kill: bool = False         # 敗方重傷位也 ≤ 0(擊殺);否則只是失能(輕傷位 0,戰鬥結束)
+    flow: Optional[dict] = None   # Session 5 主動權交換量測(只在 initiative='swap' 填):見 _new_flow
+    double_ko: bool = False    # 對攻同時結算,雙方同時失能(判平手,A70)
+
+
+def _new_flow() -> dict:
+    """主動權交換量測。swap_* = 主動權易手次數(依成因);hold_* = 「持主動期間」(從接手到交出)的連續出手長度;
+    exchanges = 出手總次數(含被守方改成對攻的);counter_attacks = 守方選對攻的次數。"""
+    return dict(swap_defend=0, swap_miss=0, swap_stop=0, hold_n=0, hold_len_sum=0, hold_empty=0,
+                exchanges=0, counter_attacks=0, counter_unaffordable=0)
 
 
 def _down(s: State, p: Params) -> bool:
@@ -654,39 +751,108 @@ def fight(b0: Build, b1: Build, p: Params, rng, first: int = 0, max_rounds: int 
         return FightOut(w, rnd, states, events, first_crit, first_crit_hit,
                         kill=states[1 - w].heavy <= 0)
 
+    flow = _new_flow() if p.initiative == "swap" else None
+
+    def finish(w, rnd, double=False, stalled=False) -> FightOut:
+        out = (done(w, rnd) if w is not None else
+               FightOut(None, rnd, states, events, first_crit, first_crit_hit, stalled))
+        out.flow = flow
+        out.double_ko = double
+        if flow is not None:
+            flow["counter_attacks"] = sum(s.st.ca_n for s in states)
+            flow["counter_unaffordable"] = sum(s.st.ca_unaffordable for s in states)
+        return out
+
     for rnd in range(1, max_rounds + 1):
         for s in states:
             s.rnd = rnd
-        for i in order:
-            j = 1 - i
-            b, s, d, sd = builds[i], states[i], builds[j], states[j]
+        if p.initiative == "swap":
             ctx = Ctx(session=session, turn=rnd)
-            _heal(b, s, p, rng)                       # 內力療傷(手番開頭)
-            k = 0
-            prev_ok = False
-            for _ in range(60):                       # 手番內連續出手(實際由消耗與門檻截止)
+            for i in order:                           # 內力療傷:回合開頭,兩邊各一次機會(A71)
+                _heal(builds[i], states[i], p, rng)
+            holder, stops, k, prev_ok, hold_len = first, 0, 0, False, 0
+            for _ in range(400):                      # 一回合內的出手次數上限(實際由消耗截止)
+                i, j = holder, 1 - holder
+                b, s, d, sd = builds[i], states[i], builds[j], states[j]
                 key = "offhand" if (b.offhand is not None and k % 2 == 1) else "weapon"
                 bonus = 10 if (b.lianci and prev_ok and k > 0) else 0
-                rec = _attack(i, key, b, s, d, sd, p, rng, log, ctx, bonus)
-                if rec is None:
-                    break
+                info: dict = {}
+                rec = _exchange(i, key, b, s, d, sd, p, rng, log, ctx, bonus, info)
+                if rec is None:                       # 持主動者停手 → 交出主動;雙方連續停手 = 回合結束
+                    flow["hold_n" if hold_len else "hold_empty"] += 1
+                    flow["hold_len_sum"] += hold_len
+                    stops += 1
+                    if stops >= 2:
+                        break
+                    flow["swap_stop"] += 1
+                    holder, k, prev_ok, hold_len = j, 0, False, 0
+                    continue
+                stops = 0
                 k += 1
+                hold_len += 1
                 prev_ok = rec[2]
-                if first_crit is None and rec[3]:
-                    first_crit = i
-                if first_crit_hit is None and rec[3] and rec[12] > 0:
-                    first_crit_hit = i
-                if keep_events:
-                    events.append(rec)
-                if _down(sd, p):                      # 輕傷位 0:失能,戰鬥結束('death' 模式:重傷位 0)
-                    return done(i, rnd)
-                if _down(s, p):                       # 被自己觸發的反擊事件打倒
-                    return done(j, rnd)
+                flow["exchanges"] += 1
+                for r_ in (rec, info.get("rec_d")):
+                    if r_ is None:
+                        continue
+                    if first_crit is None and r_[3]:
+                        first_crit = r_[0]
+                    if first_crit_hit is None and r_[3] and r_[12] > 0:
+                        first_crit_hit = r_[0]
+                    if keep_events:
+                        events.append(r_)
+                a_down, d_down = _down(s, p), _down(sd, p)
+                if a_down and d_down:
+                    return finish(None, rnd, double=True)
+                if d_down:
+                    return finish(i, rnd)
+                if a_down:
+                    return finish(j, rnd)
+                # 主動權:攻擊落空 → 交出;守方任一防禦層成功 → 交出;否則攻方保有
+                why = None
+                if info.get("counter"):
+                    if not info["hit"] and p.counter_initiative == "by_hit":
+                        why = "swap_miss"
+                elif not info["hit"]:
+                    why = "swap_miss"
+                elif info["defended"]:
+                    why = "swap_defend"
+                if why:
+                    flow[why] += 1
+                    flow["hold_n"] += 1
+                    flow["hold_len_sum"] += hold_len
+                    holder, k, prev_ok, hold_len = j, 0, False, 0
+        else:
+            for i in order:
+                j = 1 - i
+                b, s, d, sd = builds[i], states[i], builds[j], states[j]
+                ctx = Ctx(session=session, turn=rnd)
+                _heal(b, s, p, rng)                       # 內力療傷(手番開頭)
+                k = 0
+                prev_ok = False
+                for _ in range(60):                       # 手番內連續出手(實際由消耗與門檻截止)
+                    key = "offhand" if (b.offhand is not None and k % 2 == 1) else "weapon"
+                    bonus = 10 if (b.lianci and prev_ok and k > 0) else 0
+                    rec = _attack(i, key, b, s, d, sd, p, rng, log, ctx, bonus)
+                    if rec is None:
+                        break
+                    k += 1
+                    prev_ok = rec[2]
+                    if first_crit is None and rec[3]:
+                        first_crit = i
+                    if first_crit_hit is None and rec[3] and rec[12] > 0:
+                        first_crit_hit = i
+                    if keep_events:
+                        events.append(rec)
+                    if _down(sd, p):                      # 輕傷位 0:失能,戰鬥結束('death' 模式:重傷位 0)
+                        return done(i, rnd)
+                    if _down(s, p):                       # 被自己觸發的反擊事件打倒
+                        return done(j, rnd)
         for s, b in zip(states, builds):
             s.reset_round(b)
             s.stamina = min(s.stamina_max, s.stamina + regen_of(b, p))
             s.neili = min(s.neili_max, s.neili + p.regen_neili)
         if (all(regen_of(b, p) <= 0 for b in builds) and p.regen_neili <= 0
                 and states[0].avail <= 0 and states[1].avail <= 0):
-            return FightOut(None, rnd, states, events, first_crit, first_crit_hit, True)
-    return FightOut(None, max_rounds, states, events, first_crit, first_crit_hit)
+            return finish(None, rnd, stalled=True)
+    return finish(None, max_rounds)
