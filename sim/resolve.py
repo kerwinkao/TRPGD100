@@ -84,6 +84,13 @@ class Params:
     counter_initiative: str = "by_hit"   # 對攻之後主動權:'by_hit' 攻方擲骰成功才保有 | 'keep' 攻方一律保有(A67)
     dodge_swap: str = "full"             # 閃避算不算「防禦成功」:'full' 只有全閃 | 'any' 閃避擲骰成功(含部分侵蝕)即算(A68)
     stack_pay: str = "slot"              # 疊加付費:'slot' 佔被疊技能的格、走累進與低價;'none' 免費(Session 1 舊讀法)
+    # Session 6:每回合重擲先攻、預判、無預判者盲防(預設維持 Session 5 行為)
+    initiative_roll: str = "fixed"       # 'fixed' 每場先手交替、每回合開頭持主動者 = 該場先手(A73);'reroll' 每回合重擲行動值(A80)
+    info_model: str = "legacy"           # 'legacy' 守方看得到攻擊結果再選防禦、內力付剛好(Session 4–5,A57);'s6' 預判 / 盲防(A81)
+    blind_qi: str = "full"               # s6 無預判者的內力防禦固定策略:'full' 每次灌滿 | 'half' 灌一半(A84)
+    foresight_dc: int = 10               # 預判難度:戰鬥反應幅度 ≥ 此值才看得到(散修 10)
+    foresight_shen: float = 1.0          # 預判燒神識(佔位 1,不佔格)
+    fs_dodge_min: float = 0.25           # 預判成功者:全閃機率(技能值 − T)/100 低於此值就不付閃避(A83)
 
 
 DEFAULT = Params()
@@ -109,6 +116,13 @@ def s5_params(**kw) -> Params:
     base = dict(initiative="swap")
     base.update(kw)
     return s4_params(**base)
+
+
+def s6_params(**kw) -> Params:
+    """Session 6:Session 5 全部 + 每回合重擲先攻 + 預判 / 盲防;守方 counter_policy 預設 lead。"""
+    base = dict(initiative_roll="reroll", info_model="s6", counter_policy="lead")
+    base.update(kw)
+    return s5_params(**base)
 
 
 def effect_value(attr: int) -> int:
