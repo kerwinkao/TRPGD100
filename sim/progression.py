@@ -3,7 +3,7 @@
 - 累計經驗表(普通難度階):1–7 級 100 / 300 / 600 / 1000 / 1500 / 2500 / 4000。單技能上限 6 級(spec Session 3 §1)。
 - 難度階倍率:1.00 / 1.20 / 1.35 / 1.50 / 1.75。
 - 升階(鑽研)補差額:已投入經驗 × (新倍率 − 舊倍率);幅度累計門檻升 2 → 100、升 3 → 200(4、5 待確認)。
-- 副技能經驗 = 主技能同級累計成本的 1/10(spec Session 3 §7);副技能自身難度倍率待定,本檔不乘。
+- 副技能經驗(Session 4 / A49 已裁)= 副技能自身等級的累計成本 × 副技能自身難度倍率 × 1/10。散修一級難度 1 = 10 點。
 """
 from __future__ import annotations
 
@@ -29,9 +29,9 @@ def tier_upgrade_diff(level: int, old_tier: int, new_tier: int) -> float:
     return CUM[level] * (TIER_MULT[new_tier] - TIER_MULT[old_tier])
 
 
-def subskill_cost(level: int, main_tier: int = 1) -> float:
-    """副技能練到 level 級的經驗:主技能同級累計成本的 1/10。"""
-    return cum_cost(level, main_tier) / 10
+def subskill_cost(level: int, difficulty: int = 1) -> float:
+    """副技能練到 level 級的經驗:副技能自身等級的累計成本 × 副技能自身難度倍率 × 1/10。"""
+    return cum_cost(level, difficulty) / 10
 
 
 def max_level_within(budget: float, tier: int = 1, cap: int = LEVEL_CAP) -> int:

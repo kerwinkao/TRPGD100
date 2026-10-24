@@ -4,6 +4,7 @@
 - 屬性傾向數值化:傾向 high = 16、low = 12、其餘 14(模板只寫傾向,沒給數值)。
 - 等級檔位:弱 = 範圍下限、強 = 範圍上限、中 = 下限與上限的中位(無條件捨去)。寬度 1 的範圍 中 = 弱。
 - 武器骰與傷害補正屬性:劍/刀/槍/棍 1d8、拳腳 1d4;劍/刀/棍 取 Str 效益值(重兵)、槍/拳腳 取 Ski 效益值(輕兵)。
+  Session 4:`instantiate(baseline_dice=(1, 6))` 把所有武器改成散修基準骰(單手 1d6);骰型表 `DICE`。
 - 有步法等級的 NPC,守方固定宣告步法輔助閃避(沿用 Session 2 的 step_def)。
 - 多把武器技能的模板(山賊):取技能清單中第一個「裝備裡有」的武器技能為主用。
 - 小盾 / 大盾 在裝備裡才算帶盾;帶盾但模板沒列格擋 → 格擋 0 級(底值照擲)。
@@ -23,6 +24,9 @@ TPL_PATH = os.path.join(ROOT, "play", "npc", "templates.json")
 
 WEAPONS = {"長劍": (8, "Str"), "單刀": (8, "Str"), "長槍": (8, "Ski"), "長棍": (8, "Str"),
            "拳腳": (4, "Ski")}
+# 近戰武器骰型表(resolution「傷判」,源自 D&D):單手 1d6 / 1d8 / 2d4,雙手可握 1d10 / 1d12 / 2d6
+DICE = {"1d6": (1, 6), "1d8": (1, 8), "2d4": (2, 4), "1d10": (1, 10), "1d12": (1, 12), "2d6": (2, 6)}
+BASELINE_DICE = DICE["1d6"]          # 散修基準武器:單手 1d6(便宜普通)
 SHIELDS = {"小盾": "small", "大盾": "large"}
 COMBAT_KEYS = {"招架": "parry", "格擋": "block", "閃避": "dodge", "步法": "step"}
 GRADES = ("弱", "中", "強")
@@ -73,8 +77,9 @@ def weapon_entry(t: dict) -> Optional[dict]:
 
 
 def instantiate(t: dict, grade: str = "中", core: Optional[dict] = None, name: Optional[str] = None,
-                levels: Optional[dict] = None) -> Build:
-    """levels = {技能名: 等級} 可覆寫(同經驗實驗用);否則依 grade 取範圍檔位。"""
+                levels: Optional[dict] = None, baseline_dice: Optional[tuple] = None) -> Build:
+    """levels = {技能名: 等級} 可覆寫(同經驗實驗用);否則依 grade 取範圍檔位。
+    baseline_dice = (顆數, 面數):覆寫所有武器骰(Session 4 散修基準 1d6);None = 沿用 WEAPONS 表。"""
     core = core or load_core()
     attrs = lean_attrs(t)
     lv = {e["skill"]: (levels[e["skill"]] if levels and e["skill"] in levels
@@ -86,6 +91,8 @@ def instantiate(t: dict, grade: str = "中", core: Optional[dict] = None, name: 
         src = w["based_on"] if w.get("placeholder") else w["skill"]
         die, battr = WEAPONS[src]
         kw.update(weapon=lv[w["skill"]], weapon_name=w["skill"], weapon_die=die, weapon_attr=battr)
+        if baseline_dice is not None:
+            kw.update(weapon_die=baseline_dice[1], weapon_dice=baseline_dice)
         kw["base"]["weapon"] = base_of(w, core, attrs)
         subs = {x["name"]: x["level"] for x in w.get("subskills", []) if x["name"]}
         kw["link_w2p"] = subs.get("招架", 0)
@@ -109,14 +116,24 @@ def instantiate(t: dict, grade: str = "中", core: Optional[dict] = None, name: 
     return Build(**kw)
 
 
-def xp_cost(t: dict, levels: dict) -> float:
-    """模板實例的總經驗:各技能累計表 × 持有難度階 + 已持副技能(主技能同級 1/10,A15)。"""
+def sub_difficulty(entry: dict, sub: dict, core: Optional[dict]) -> int:
+    """副技能自身難度:核心表有的取表上值;專屬副技能位置(尚未填表)暫取主技能持有難度階(A47)。"""
+    if core and not entry.get("placeholder") and sub.get("name"):
+        for x in core[entry["skill"]]["subskills"]:
+            if x["name"] == sub["name"]:
+                return x["difficulty"]
+    return entry["tier"]
+
+
+def xp_cost(t: dict, levels: dict, core: Optional[dict] = None) -> float:
+    """模板實例的總經驗:各技能累計表 × 持有難度階 + 已持副技能(副技能自身等級成本 × 自身難度倍率 × 1/10,A49)。"""
+    core = core or load_core()
     total = 0.0
     for e in t["skills"]:
         L = levels[e["skill"]]
         total += cum_cost(L, e["tier"])
         for sub in e.get("subskills", []):
-            total += subskill_cost(sub["level"], e["tier"])
+            total += subskill_cost(sub["level"], sub_difficulty(e, sub, core))
     return total
 
 

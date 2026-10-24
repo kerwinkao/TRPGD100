@@ -39,6 +39,14 @@ def test_subskill_cost_tenth():
     assert abs(subskill_cost(2, 2) - 36) < 1e-9
 
 
+def test_subskill_cost_uses_own_level_and_difficulty():
+    # Session 4(A49 已裁):副技能自身等級的累計成本 × 自身難度倍率 × 1/10,與主技能等級無關
+    assert subskill_cost(1, 1) == 10
+    assert abs(subskill_cost(3, 3) - 600 * 1.35 / 10) < 1e-9
+    assert abs(subskill_cost(4, 4) - 1000 * 1.5 / 10) < 1e-9
+    assert subskill_cost(1, 1) == subskill_cost(1)
+
+
 def test_max_level_within():
     assert max_level_within(300) == 2
     assert max_level_within(1000) == 4

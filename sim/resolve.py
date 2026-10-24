@@ -71,6 +71,13 @@ class Params:
     react: str = "always"                # 事件→被動反應:'always' 付得起就反應;'never' 不反應吃後果
     sub_order: str = "link_first"        # 付不起全部副技能時,依序發動前 k 個(A43):'link_first' link 先、反擊後;'counter_first' 反擊先
     end_on: str = "incap"                # 戰鬥終止:'incap' 輕傷位 0 失能即結束(設計文件);'death' 打到重傷位 0 才結束(A40,擊殺矩陣用)
+    # Session 4 規則開關(同樣預設維持舊行為;s4_params() 一次打開)
+    sub_fee: float = 1.0                 # 副技能發動費(點/個,體力可小數);Session 4 裁 0.2
+    reroll_pool: str = "stamina"         # 任意重骰(劍意)發動費燒哪個池:'stamina' | 'shenshi'(Session 4)
+    shenshi_fee: float = 1.0             # 燒神識的副技能每次費用(佔位 1、不佔格、不進價碼與門檻,A53)
+    link_bonus: int = 10                 # link 每級加成(E9 掃 {10,15,20})
+    neili_model: str = "skill_value"     # 'skill_value' 內力池 = 內功技能值(A12);'s4' 效益值和 × 難度階 × 等級,三種用途
+    neili_stack: bool = True             # 內力疊發:同一動作可灌多次輸出;False 每動作只灌一次輸出
     stack_pay: str = "slot"              # 疊加付費:'slot' 佔被疊技能的格、走累進與低價;'none' 免費(Session 1 舊讀法)
 
 
@@ -82,6 +89,14 @@ def s3_params(**kw) -> Params:
     base = dict(hp_model="str_con", stamina_model="con", regen_model="con", damage_model="s3")
     base.update(kw)
     return Params(**base)
+
+
+def s4_params(**kw) -> Params:
+    """Session 4 規則一次打開:Session 3 全部 + 發動費 0.2、劍意燒神識、內力三用途。
+    失能即勝(單挑)是 end_on='incap' 的預設,不需另開。"""
+    base = dict(sub_fee=0.2, reroll_pool="shenshi", neili_model="s4")
+    base.update(kw)
+    return s3_params(**base)
 
 
 def effect_value(attr: int) -> int:
@@ -142,6 +157,24 @@ class Result:
     crit: bool
     fumble: bool
     crit_zone: int
+
+
+Dice = "int | tuple"          # 骰型:int = 1dN;(n, s) = nds,例 (2, 4) = 2d4
+
+
+def dice_spec(d) -> tuple:
+    return (1, d) if isinstance(d, int) else (d[0], d[1])
+
+
+def roll_dice(d, rng: RNG) -> int:
+    """擲武器骰。1dN 只呼叫一次 randint,與舊版擲骰順序相同。"""
+    n, sides = dice_spec(d)
+    return sum(rng.randint(1, sides) for _ in range(n))
+
+
+def max_dice(d) -> int:
+    n, sides = dice_spec(d)
+    return n * sides
 
 
 def roll(rng: RNG) -> int:
@@ -311,7 +344,7 @@ def parry(skill: int, weapon_die: int, rng: RNG, *, params: Params = DEFAULT,
           log: Optional[list] = None, ctx: Optional[Ctx] = None) -> Optional[int]:
     """招架:成功 → 守方擲武器傷害骰,回傳 D_def;失敗或特誤 → None。不碰 T。"""
     res = check(skill, rng, params=params, log=log, ctx=replace(ctx or Ctx(), skill="招架"))
-    return rng.randint(1, weapon_die) if res.success else None
+    return roll_dice(weapon_die, rng) if res.success else None
 
 
 def parry_ex(skill: int, weapon_die: int, rng: RNG, *, params: Params = DEFAULT,
@@ -320,7 +353,7 @@ def parry_ex(skill: int, weapon_die: int, rng: RNG, *, params: Params = DEFAULT,
     res = check(skill, rng, params=params, log=log, ctx=replace(ctx or Ctx(), skill="招架"))
     if not res.success:
         return None, 0
-    return rng.randint(1, weapon_die), res.margin
+    return roll_dice(weapon_die, rng), res.margin
 
 
 def block(skill: int, shield_value: int, rng: RNG, *, params: Params = DEFAULT,
@@ -344,10 +377,11 @@ def damage(weapon_die: int, overflow_pts: int, crit: bool, D_def: int, rng: RNG)
     return max(0, die + overflow_pts - D_def)
 
 
-def damage_s3(weapon_die: int, bonus: int, overflow_pts: int, crit: bool, D_def: int,
-              rng: RNG) -> tuple:
-    """Session 3 傷判:D_atk = 四捨五入((骰 + 屬性補正) × (1 + 溢出/100));溢出狀態下致命 → 骰滿骰。
+def damage_s3(weapon_die, bonus: int, overflow_pts: int, crit: bool, D_def: int,
+              rng: RNG, extra: int = 0) -> tuple:
+    """傷判:D_atk = 四捨五入((骰 + 屬性補正) × (1 + 溢出/100)) + extra;溢出狀態下致命 → 骰滿骰。
+    weapon_die 可為 int(1dN)或 (顆數, 面數);extra = 內力攻擊灌注(Session 4,乘數之後才加)。
     傷害 = max(0, D_atk − D_def)。回傳 (傷害, D_atk)。例:長劍、Str 14、技能 125 致命 → (8+2)×1.25 → 13。"""
-    die = weapon_die if (crit and overflow_pts > 0) else rng.randint(1, weapon_die)
-    d_atk = ((die + bonus) * (100 + overflow_pts) + 50) // 100
+    die = max_dice(weapon_die) if (crit and overflow_pts > 0) else roll_dice(weapon_die, rng)
+    d_atk = ((die + bonus) * (100 + overflow_pts) + 50) // 100 + extra
     return max(0, d_atk - D_def), d_atk

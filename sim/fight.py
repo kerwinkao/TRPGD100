@@ -9,6 +9,14 @@ Session 3 加入(皆由 Params 開關 / Build 新欄位啟用,預設值維持 Se
 - 副技能發動:每個 +1 點,加在價碼上、不進累進格的 k;付不起就不發動。link(雙向 +10/級)、致命、任意重骰(劍意)。
 - 事件→被動反應:動作生成對手必須回應的事件(第一個實例:反擊),對手付體力走防禦鏈,或不回應吃後果。
 
+Session 4 加入(同樣由 Params 開關啟用,s4_params() 一次打開):
+- 體力與發動費是浮點數(每個副技能 0.2 點,Params.sub_fee);比較時留 1e-9 容差。
+- 每個副技能宣告燒哪個池:預設體力;任意重骰(劍意)燒神識(Params.reroll_pool),不佔格、不進價碼與門檻。
+- 武器骰可為多骰((顆數, 面數),如 2d4);招架骰對骰用守方武器的骰型。
+- 失能即勝:輕傷位 0 戰鬥結束(end_on='incap' 預設),不再需要打到死。
+- 內力三種用途(攻擊灌注 / 防禦吸收 / 療傷):池量與等級上限由 Con/Cha/Wis 效益值決定,單次輸出上限、
+  每回合輸出次數、疊發分發、三類各自冷卻一回合、戰鬥中不回。
+
 結構(spec.md「回合狀態」):
 - 三個消耗格:手 / 腳 / 腦。回合內同格第 k 動耗 k 點;技能等級給 ceil(level/2) 次低價(各 1 點)。回合末歸零。
 - 一回合 = 雙方各自的「手番」依序一次;手番內可連續出手,直到一動的價碼超過 act_threshold 或付不起。
@@ -22,11 +30,12 @@ from dataclasses import dataclass
 from typing import Optional
 
 from resolve import (Ctx, Params, block, check, damage, damage_s3, dodge, effect_value,
-                     overflow, parry, parry_ex, shield_value, step)
+                     max_dice, overflow, parry, parry_ex, roll_dice, shield_value, step)
 
 BASE = 42  # 均值角色(全 14)模擬技能的底值
+EPS = 1e-9   # 浮點比較容差(發動費 0.2 的累加)
 SLOT = {"weapon": "hand", "offhand": "hand", "parry": "hand", "block": "hand",
-        "step": "foot", "dodge": "foot"}
+        "step": "foot", "dodge": "foot", "heal": "brain"}
 NAME = {"weapon": "長劍", "offhand": "短劍", "step": "步法", "dodge": "閃避",
         "parry": "招架", "block": "格擋", "neigong": "內功"}
 DIE = {"weapon": 8, "offhand": 4}
@@ -82,6 +91,11 @@ class Build:
     reroll_any: bool = False           # 武器掛任意重骰(【劍意】類)
     stacks: tuple = ()                 # 疊加:((技能名, 等級), ...),如 (("戰鬥反應", 5), ("內功", 5))
     subs_on: Optional[tuple] = None    # 願意發動的副技能名單('link_w2p','link_p2w','counter','crit_sub','reroll_any');None = 持有的都願意
+    # ---- Session 4 ----
+    weapon_dice: Optional[tuple] = None   # 主手武器骰 (顆數, 面數),如 (2, 4);None = (1, weapon_die)
+    neili_tier: int = 1                # 內功持有難度階序號(散修 1;1 散修、2 內門、3 嫡傳、4 以上修真)
+    neili_use: tuple = ()              # 內力用途優先序:'attack' | 'defense' | 'heal' 的子集;() = 不用內力
+    neili_alloc: Optional[dict] = None # 每次輸出分給各用途的點數(分發),如 {"attack": 2, "defense": 1};None = 全給 neili_use 第一項
 
     def level(self, key: str) -> int:
         if self.level_override and key in self.level_override:
@@ -97,6 +111,9 @@ class Build:
 
     def attr(self, code: str) -> int:
         return self.attrs.get(code, 14) if self.attrs else 14
+
+    def dice(self) -> tuple:
+        return self.weapon_dice if self.weapon_dice else (1, self.weapon_die)
 
     def stack_value(self, name: str, level: int) -> int:
         return sum(self.attr(a) for a in STACK_ATTR[name]) + 10 * level
@@ -132,6 +149,42 @@ def regen_of(b: Build, p: Params) -> int:
     return effect_value(b.attr("Con")) if p.regen_model == "con" else p.regen_stamina
 
 
+def shenshi_max(b: Build) -> int:
+    """神識池 = Wis + Wis(attributes.md:依家,標準取 Wis+Wis;A53)。"""
+    return 2 * b.attr("Wis")
+
+
+def neili_level(b: Build, p: Params) -> int:
+    """內力可用的內功等級:上限 = Con、Cha、Wis 效益值中最小者(任一為 0 修不出)。僅 neili_model='s4' 有效。"""
+    if p.neili_model != "s4":
+        return 0
+    cap = min(effect_value(b.attr(a)) for a in ("Con", "Cha", "Wis"))
+    return max(0, min(b.neigong, cap))
+
+
+def neili_pool(b: Build, p: Params) -> int:
+    """池量 = Con、Cha、Wis 效益值之和 × 內功難度階序號 × 內功等級。均值散修一級 6。"""
+    lv = neili_level(b, p)
+    return sum(effect_value(b.attr(a)) for a in ("Con", "Cha", "Wis")) * b.neili_tier * lv
+
+
+def neili_cap(level: int) -> int:
+    """單次輸出上限:內功 1/2/3/4 級 → 3/5/7/9 點。"""
+    return 2 * level + 1 if level > 0 else 0
+
+
+def sub_costs(names: list, p: Params) -> tuple:
+    """發動這些副技能的費用:(體力費, 神識費)。每個副技能燒自己宣告的池:
+    任意重骰在 reroll_pool='shenshi' 時燒神識,其餘燒體力(Params.sub_fee/個)。"""
+    stam = shen = 0.0
+    for n in names:
+        if n == "reroll_any" and p.reroll_pool == "shenshi":
+            shen += p.shenshi_fee
+        else:
+            stam += p.sub_fee
+    return stam, shen
+
+
 def shield_of(b: Build, p: Params) -> Optional[str]:
     return b.shield if b.shield is not None else p.shield
 
@@ -145,7 +198,9 @@ class Stats:
                  "first_refuse", "first_winded", "faced",
                  "cat_n", "cat_dmg", "dodge_try",
                  "sub_fee", "stack_acts", "sub_active", "ev_gen", "ev_dmg_dealt",
-                 "ev_reacted", "ev_ignored", "ev_dmg_taken", "ev_react_cost")
+                 "ev_reacted", "ev_ignored", "ev_dmg_taken", "ev_react_cost",
+                 "sub_offered", "shen_spent", "qi_atk_pts", "qi_atk_dmg", "qi_def_pts", "qi_def_abs",
+                 "qi_heal_pts", "qi_heal_amt", "heal_acts")
 
     def __init__(self):
         for k in self.__slots__:
@@ -163,20 +218,27 @@ class State:
         self.hp_cap = hp_max(b, p)
         self.hp = self.hp_cap              # 輕傷位(休息即回,戰鬥中不回)
         self.heavy = self.hp_cap           # 重傷位(吃一半)
+        self.p = p
         self.stamina = stamina
         self.stamina_max = stamina
-        self.neili = b.value("neigong") if b.level("neigong") >= 1 else 0   # A12
+        # 內力:s4 模型是獨立的三用途池(self.qi),不當體力替代品;舊模型沿用 A12(內功技能值,可代付體力)
+        self.neili = (b.value("neigong") if (b.level("neigong") >= 1 and p.neili_model != "s4") else 0)
         self.neili_max = self.neili
+        self.qi = neili_pool(b, p)
+        self.qi_max = self.qi
+        self.shen = shenshi_max(b)
+        self.cd_now: set = set()
         self.slots = {"hand": 0, "foot": 0, "brain": 0}
         self.cheap: dict = {}
         self.rnd = 0
         self.st = Stats()
         self.reset_round(b)
 
-    def take(self, d: int):
-        """受傷 D:輕傷位 −D,重傷位 −⌊D/2⌋。輕傷位 ≤ 0 失能(戰鬥結束),重傷位 ≤ 0 擊殺。"""
-        self.hp -= d
-        self.heavy -= d // 2
+    def take(self, d: int, light_abs: int = 0, heavy_abs: int = 0):
+        """受傷 D:輕傷位 −D,重傷位 −⌊D/2⌋(各自可先扣吸收:內力防禦輕 +3、重 +1,Session 4)。
+        輕傷位 ≤ 0 失能(戰鬥結束,Session 4 起即勝負);重傷位仍追蹤,只供舊統計。"""
+        self.hp -= max(0, d - light_abs)
+        self.heavy -= max(0, d // 2 - heavy_abs)
 
     def reset_round(self, b: Build):
         self.slots = {"hand": 0, "foot": 0, "brain": 0}
@@ -184,6 +246,35 @@ class State:
                       ("weapon", "offhand", "step", "dodge", "parry", "block")}
         for name, lv in b.stacks:
             self.cheap["stack:" + name] = cheap_count(lv)
+        # 內力:冷卻 = 上回合用過的類別本回合不能用;本回合各用途的額度 = 每回合輸出次數 × 每次輸出分給該用途的點數
+        lv = neili_level(b, self.p)
+        self.cheap["heal"] = cheap_count(lv)
+        self.cd_prev = self.cd_now
+        self.cd_now = set()
+        self.allow, self.unit = {}, {}
+        if lv > 0 and self.qi > 0 and b.neili_use:
+            n_out, cap = (lv + 1) // 2, neili_cap(lv)
+            for i, cat in enumerate(b.neili_use):
+                a = (b.neili_alloc or {}).get(cat, 0) if b.neili_alloc else (cap if i == 0 else 0)
+                if a > 0 and cat not in self.cd_prev:
+                    self.unit[cat] = min(a, cap)
+                    self.allow[cat] = n_out * self.unit[cat]
+
+    def qi_peek(self, cat: str) -> int:
+        """這個用途這一動最多能取幾點內力(額度、單次輸出上限、剩餘池)。"""
+        a = self.allow.get(cat, 0)
+        per = a if self.p.neili_stack else min(a, self.unit.get(cat, 0))
+        return int(min(per, self.qi))
+
+    def qi_take(self, cat: str, want: int) -> int:
+        """取至多 want 點內力給 cat;用了就記冷卻。回傳實際點數。"""
+        pts = min(want, self.qi_peek(cat))
+        if pts <= 0:
+            return 0
+        self.allow[cat] -= pts
+        self.qi -= pts
+        self.cd_now.add(cat)
+        return pts
 
     @property
     def avail(self) -> int:
@@ -230,10 +321,10 @@ def _try(s: State, b: Build, key: str, p: Params, extra: int = 0) -> bool:
     """想做一動:價碼超過門檻 → 拒絕(refuse);付不起 → 喘(winded);否則付費並記一動。
     extra = 發動副技能的費用(每個 +1,加在價碼上、不進累進格的 k)。"""
     c = _price(s, key, p) + extra
-    if c > p.act_threshold:
+    if c > p.act_threshold + EPS:
         _refuse(s)
         return False
-    if c > s.avail:
+    if c > s.avail + EPS:
         _wind(s)
         return False
     _commit(s, b, key, p, c)
@@ -242,10 +333,11 @@ def _try(s: State, b: Build, key: str, p: Params, extra: int = 0) -> bool:
     return True
 
 
-def _plan(s: State, p: Params, actions: list) -> tuple:
-    """不改狀態地模擬一串動作((鍵, 副技能費)...)的總價:每動都要 ≤ 門檻,總和要付得起。
+def _plan(s: State, p: Params, actions: list, shen: float = 0.0) -> tuple:
+    """不改狀態地模擬一串動作((鍵, 發動費)...)的總價:每動(價碼 + 發動費)都要 ≤ 門檻,體力總和要付得起;
+    shen = 這一串另燒的神識(不佔格、不進價碼與門檻),池不夠就付不起。
     回傳 (失敗原因 None|'refuse'|'wind', 各動價碼)。同格的動作累進、技能低價次數依序消耗。"""
-    slots, cheap, total, costs = dict(s.slots), dict(s.cheap), 0, []
+    slots, cheap, total, costs = dict(s.slots), dict(s.cheap), 0.0, []
     for key, extra in actions:
         pk, sl = _pool(key, p), slot_of(key)
         if cheap.get(pk, 0) > 0:
@@ -255,21 +347,23 @@ def _plan(s: State, p: Params, actions: list) -> tuple:
             price = slots[sl] + 1
         slots[sl] += 1
         c = price + extra
-        if c > p.act_threshold:
+        if c > p.act_threshold + EPS:
             return "refuse", costs
         total += c
         costs.append(c)
-    if total > s.avail:
+    if total > s.avail + EPS or shen > s.shen + EPS:
         return "wind", costs
     return None, costs
 
 
 def _try_seq(s: State, b: Build, p: Params, variants: list) -> Optional[int]:
     """依偏好順序試幾種「動作串」(如:疊兩個再攻並發動副技能 → 疊兩個再攻不發動 → ...)。
+    variant 可為動作 list,或 (動作 list, 神識費) tuple。
     回傳第一個付得起的 variant 索引並付費;全失敗回 None,只按最後一個(最便宜)的失敗原因記一次拒絕 / 喘。"""
     why = None
-    for idx, actions in enumerate(variants):
-        why, costs = _plan(s, p, actions)
+    for idx, v in enumerate(variants):
+        actions, shen = v if isinstance(v, tuple) else (v, 0.0)
+        why, costs = _plan(s, p, actions, shen)
         if why is None:
             for (key, extra), c in zip(actions, costs):
                 _commit(s, b, key, p, c)
@@ -277,6 +371,9 @@ def _try_seq(s: State, b: Build, p: Params, variants: list) -> Optional[int]:
                     s.st.sub_fee += extra
                 if key.startswith("stack:"):
                     s.st.stack_acts += 1
+            if shen:
+                s.shen -= shen
+                s.st.shen_spent += shen
             return idx
     (_refuse if why == "refuse" else _wind)(s)
     return None
@@ -286,7 +383,7 @@ def _try_pair(s: State, b: Build, k1: str, k2: str, p: Params) -> bool:
     """步法 + 目標動作:兩動都在門檻內、合計付得起,才先付第一動(第二動由呼叫端接著 _try)。
     同格輔助累進(腳 1 + 腳 2),跨格各算各格第一動。"""
     c1 = _price(s, k1, p)
-    if c1 > p.act_threshold:
+    if c1 > p.act_threshold + EPS:
         return False
     sl, pk = slot_of(k1), _pool(k1, p)
     old_slot, old_cheap = s.slots[sl], s.cheap.get(pk, 0)
@@ -297,7 +394,7 @@ def _try_pair(s: State, b: Build, k1: str, k2: str, p: Params) -> bool:
     s.slots[sl] = old_slot
     if old_cheap > 0:
         s.cheap[pk] = old_cheap
-    if c2 > p.act_threshold or c1 + c2 > s.avail:
+    if c2 > p.act_threshold + EPS or c1 + c2 > s.avail + EPS:
         return False
     _commit(s, b, k1, p, c1)
     return True
@@ -336,7 +433,10 @@ def _defend(d: Build, sd: State, T: int, p: Params, rng, log, d_ctx: Ctx, react:
         return out
 
     held = d.held_parry(p, react) if p.activate != "never" else []
-    variants = [[("parry", k)] for k in range(len(held), -1, -1)] or [[("parry", 0)]]
+    variants = []
+    for k in range(len(held), -1, -1):
+        stam, shen = sub_costs(held[:k], p)
+        variants.append(([("parry", stam)], shen))
     idx = _try_seq(sd, d, p, variants)
     if idx is not None:
         out["acted"] = True
@@ -344,11 +444,12 @@ def _defend(d: Build, sd: State, T: int, p: Params, rng, log, d_ctx: Ctx, react:
         dst.def_acts += 1
         dst.parry_try += 1
         dst.sub_active += len(active)
+        dst.sub_offered += len(held)
         pen_p = dual_penalty(p)[0] if d.offhand is not None else 0
-        link = 10 * ((d.link_w2p if "link_w2p" in active else 0)
-                     + (d.link_p2w if "link_p2w" in active else 0))
+        link = p.link_bonus * ((d.link_w2p if "link_w2p" in active else 0)
+                               + (d.link_p2w if "link_p2w" in active else 0))
         d_par, margin = parry_ex(max(d.value("parry") - pen_p + boost["parry"] + link, 0),
-                                 d.weapon_die, rng, params=p, log=log, ctx=d_ctx)
+                                 d.dice(), rng, params=p, log=log, ctx=d_ctx)
         dst.parry_ok += d_par is not None
         out["d_par"], out["par_margin"] = d_par, margin
         out["counter_on"] = "counter" in active
@@ -409,7 +510,8 @@ def _attack(i: int, key: str, b: Build, s: State, d: Build, sd: State, p: Params
     for ns in range(len(stacks), -1, -1):
         pre = [] if p.stack_pay == "none" else [("stack:" + n, 0) for n, _ in stacks[:ns]]
         for k in range(len(held), -1, -1):
-            variants.append(pre + [(key, k)])
+            stam, shen = sub_costs(held[:k], p)
+            variants.append((pre + [(key, stam)], shen))
             meta.append((ns, held[:k]))
     idx = _try_seq(s, b, p, variants)
     if idx is None:
@@ -421,6 +523,7 @@ def _attack(i: int, key: str, b: Build, s: State, d: Build, sd: State, p: Params
     st.atk_acts += 1
     st.att += 1
     st.sub_active += len(active)
+    st.sub_offered += len(held)
 
     pen_main, pen_off = dual_penalty(p)
     pen = 0
@@ -452,27 +555,64 @@ def _attack(i: int, key: str, b: Build, s: State, d: Build, sd: State, p: Params
     ov = overflow(eff)
     die = DIE["weapon"] if key == "weapon" else DIE[key]
     d_atk = None
+    absorbed = 0
     if p.damage_model == "s3":
-        die = b.weapon_die if key == "weapon" else DIE[key]
+        die = b.dice() if key == "weapon" else DIE[key]
         attr = b.weapon_attr if key == "weapon" else "Ski"
-        dmg, d_atk = damage_s3(die, effect_value(b.attr(attr)), ov, res.crit, D_def, rng)
+        # 內力攻擊灌注:傷害過了防禦鏈才灌,每點 +1d3(乘數之後才加);點數記在攻方
+        extra = 0
+        pts = s.qi_take("attack", s.qi_peek("attack")) if "attack" in s.allow else 0
+        if pts:
+            extra = sum(rng.randint(1, 3) for _ in range(pts))
+            st.qi_atk_pts += pts
+            st.qi_atk_dmg += extra
+        dmg, d_atk = damage_s3(die, effect_value(b.attr(attr)), ov, res.crit, D_def, rng, extra=extra)
+        # 內力防禦吸收:守方被打中才付,點數取到剛好吃掉傷害(每點輕傷吸收 3、重傷吸收 1)
+        if dmg > 0 and "defense" in sd.allow:
+            need = -(-dmg // 3)
+            dpts = sd.qi_take("defense", need)
+            if dpts:
+                absorbed = dpts
+                sd.st.qi_def_pts += dpts
+                sd.st.qi_def_abs += min(dmg, 3 * dpts)
     else:
         dmg = damage(die, ov, res.crit, D_def, rng)
+    light_abs = 3 * absorbed
+    dealt = max(0, dmg - light_abs)
     cat = None
-    if dmg > 0:
+    if dealt > 0:
         st.dmg_hit += 1
-        st.dmg_total += dmg
+        st.dmg_total += dealt
         cat = ("crit_maxdie" if (res.crit and ov > 0) else
                "through_parry" if parts else "no_guard")
         st.cat_n[cat] += 1
-        st.cat_dmg[cat] += dmg
-    sd.take(dmg)
+        st.cat_dmg[cat] += dealt
+    sd.take(dmg, light_abs=light_abs, heavy_abs=absorbed)
+    dmg = dealt
 
     # ---- 事件:反擊(招架成功且 D_def > D_atk,差值彈向攻方)----
     if (r["counter_on"] and d_par is not None and d_atk is not None and sd.hp > 0
             and d_par > d_atk):
         _react_event("counter", d_par - d_atk, r["par_margin"], b, s, d, sd, p, rng, log, ctx)
     return (i, key, True, res.crit, False, S, False, T, r["T_after"], d_par, d_blk, D_def, dmg, cat)
+
+
+def _heal(b: Build, s: State, p: Params, rng):
+    """內力療傷:手番開頭,輕傷位有缺且療傷額度還在,就花腦格一動(走價碼、門檻、低價次數)灌內力,
+    每點回 1d4 輕傷位(上限內)。點數取到「期望回復剛好補滿缺口」(⌈缺口/2.5⌉)為止,不超過單次輸出上限。
+    一動只回一次輸出;額度夠就再來一動。"""
+    if p.neili_model != "s4" or "heal" not in s.allow:
+        return
+    while s.hp < s.hp_cap and s.qi > 0:
+        want = min(-(-(s.hp_cap - s.hp) * 2 // 5), s.qi_peek("heal"))
+        if want <= 0 or not _try(s, b, "heal", p):
+            return
+        pts = s.qi_take("heal", want)
+        amt = sum(rng.randint(1, 4) for _ in range(pts))
+        s.hp = min(s.hp_cap, s.hp + amt)
+        s.st.heal_acts += 1
+        s.st.qi_heal_pts += pts
+        s.st.qi_heal_amt += amt
 
 
 def replace_ctx(c: Ctx, T: int) -> Ctx:
@@ -521,6 +661,7 @@ def fight(b0: Build, b1: Build, p: Params, rng, first: int = 0, max_rounds: int 
             j = 1 - i
             b, s, d, sd = builds[i], states[i], builds[j], states[j]
             ctx = Ctx(session=session, turn=rnd)
+            _heal(b, s, p, rng)                       # 內力療傷(手番開頭)
             k = 0
             prev_ok = False
             for _ in range(60):                       # 手番內連續出手(實際由消耗與門檻截止)
