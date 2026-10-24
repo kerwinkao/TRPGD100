@@ -76,7 +76,8 @@
 |---|---|
 | 長劍 | Str+Ski+Agi |
 | 閃避 | Agi+Con+Wis |
-| 格擋 | Ski+Str+Wis |
+| 招架 | Ski+Str+Wis |
+| 格擋(盾) | Ski+Con+Str |
 | 戰鬥反應 | Agi+Ski+Wis |
 | 察覺 | Wis+Int+Cha |
 | 內功 | Con+Cha+Wis |

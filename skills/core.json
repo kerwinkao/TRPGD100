@@ -243,8 +243,8 @@
       },
       "attributes": [
         "Ski",
-        "Str",
-        "Wis"
+        "Con",
+        "Str"
       ],
       "max_tier": 5,
       "pool": "體力",
