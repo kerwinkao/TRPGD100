@@ -13,6 +13,7 @@ design/open-questions.md 待定事項(設計/模擬/確認)
 sim/spec.md              resolve.py 規格與實驗
 design/systems.md        近戰與法術:池的線×階×源、school 對照、八系、反制、三層殼、距離
 play/README.md           模型 DM:引導創角、間隔期單人戲、NPC 模板
+play/equipment.md        裝備估算板:重量、負重、超重減值、護甲吸收(佔位)
 ```
 
 ## 雲端 session 派工(建議順序)
