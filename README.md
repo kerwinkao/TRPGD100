@@ -12,6 +12,7 @@ design/skill-schema.json 技能資料庫 schema + 範例
 design/open-questions.md 待定事項(設計/模擬/確認)
 sim/spec.md              resolve.py 規格與實驗
 design/systems.md        近戰與法術:池的線×階×源、school 對照、八系、反制、三層殼、距離
+design/reference-systems.md 參考系統調查(D&D/BRP/GURPS/Millennium's End/武俠系…)與東幻、西幻、近現代混玩的五層結構計畫
 play/README.md           模型 DM:引導創角、間隔期單人戲、NPC 模板
 play/equipment.md        裝備估算板:重量、負重、超重減值、護甲吸收(佔位)
 ```
